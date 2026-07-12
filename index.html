@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#9e1b32">
+<meta name="robots" content="noindex,nofollow">
+<title>Gunpo Eunhye Corps Family Management System</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--red:#9e1b32;--red2:#c8304a;--navy:#18304a;--ink:#17212b;--muted:#6b7580;--paper:#f7f4ef;--card:#fff;--line:#e6dfd7;--shadow:0 8px 24px rgba(34,29,26,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Noto Sans KR",Arial,sans-serif}.app{min-height:100vh;padding-bottom:86px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px}.brand{max-width:1120px;margin:auto;display:flex;align-items:center;gap:14px}.brand img{width:96px;height:96px;object-fit:contain}.brand h1{margin:0;color:var(--navy);font-size:clamp(20px,3.8vw,32px);letter-spacing:-.03em}.brand p{margin:5px 0 0;color:var(--muted);font-size:13px}.private{margin-left:auto;background:#fff1f4;color:var(--red);padding:7px 10px;border-radius:99px;font-size:12px;font-weight:800}
+main{max-width:1120px;margin:auto;padding:18px 14px}.page{display:none}.page.active{display:block}.hero{background:linear-gradient(135deg,var(--navy),#275678);color:#fff;border-radius:24px;padding:24px;box-shadow:var(--shadow)}.hero h2{margin:0 0 8px;font-size:25px}.hero p{margin:0;line-height:1.6;opacity:.88}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.kpi{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.kpi span{font-size:13px;color:var(--muted)}.kpi b{display:block;font-size:28px;color:var(--red);margin-top:4px}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}.card h3{margin:0 0 14px;color:var(--navy)}
+.notice{padding:13px 0;border-bottom:1px solid var(--line)}.notice:last-child{border:0}.notice time{font-size:12px;color:var(--muted)}.notice strong{display:block;margin:4px 0}.notice p{margin:0;color:#4d5862;line-height:1.55;font-size:14px}
+.toolbar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:12px}.toolbar input,.toolbar select{width:100%;border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px 14px;outline:none}.toolbar input:focus,.toolbar select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(158,27,50,.1)}
+.result{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin:8px 2px 12px}.families{display:grid;gap:12px}.family{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}.family-head{display:flex;align-items:center;gap:12px;padding:16px;cursor:pointer}.family-icon{width:48px;height:48px;border-radius:16px;background:#f5e4e8;color:var(--red);display:grid;place-items:center;font-size:23px}.family-title{flex:1}.family-title h4{margin:0 0 4px;font-size:18px}.family-title small{color:var(--muted)}.chev{font-size:20px;color:var(--muted);transition:.2s}.family.open .chev{transform:rotate(180deg)}.family-body{display:none;border-top:1px solid var(--line);padding:12px 16px 16px}.family.open .family-body{display:block}
+.person{display:grid;grid-template-columns:42px 1fr auto;gap:11px;align-items:start;padding:12px 0;border-bottom:1px dashed var(--line)}.person:last-child{border:0}.avatar{width:42px;height:42px;border-radius:14px;background:#eef2f6;color:var(--navy);display:grid;place-items:center;font-weight:900}.person h5{margin:1px 0 4px;font-size:16px}.meta{font-size:13px;color:var(--muted);line-height:1.55}.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.tag{background:#f2f4f6;color:#4f5a66;padding:4px 8px;border-radius:99px;font-size:11px}.phone{border:0;background:#f7ecef;color:var(--red);padding:8px 9px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer}
+.member-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.member-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:14px;display:grid;grid-template-columns:42px 1fr;gap:11px}.member-card h4{margin:0 0 5px}.empty{padding:48px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:18px}
+.chart{display:flex;flex-direction:column;gap:10px}.barrow{display:grid;grid-template-columns:minmax(85px,145px) 1fr 38px;gap:9px;align-items:center;font-size:13px}.track{height:11px;background:#eee8e2;border-radius:99px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,var(--red),var(--red2));border-radius:99px}
+.birthday-tools{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.birthday-tools select{border:1px solid var(--line);background:#fff;border-radius:13px;padding:11px 14px;min-width:150px}
+.birthday-summary{color:var(--muted);font-size:13px}
+.birthday-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.birthday-card{background:#fff8f8;border:1px solid #efd9de;border-radius:16px;padding:14px;display:grid;grid-template-columns:42px 1fr;gap:11px;align-items:center}
+.birthday-card .cake{width:42px;height:42px;border-radius:14px;background:#f6e5e9;display:grid;place-items:center;font-size:22px}
+.birthday-card h4{margin:0 0 4px}.birthday-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.schedule{display:grid;gap:10px}.schedule-item{border-left:4px solid var(--red);background:#fff8f8;border-radius:0 14px 14px 0;padding:14px}.schedule-item small{color:var(--muted)}.schedule-item b{display:block;margin:4px 0}.section-title{margin:3px 0 14px;color:var(--navy);font-size:24px}.info{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;line-height:1.7}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:30;display:flex;justify-content:center;padding:7px 8px calc(7px + env(safe-area-inset-bottom))}.nav{width:min(760px,100%);display:grid;grid-template-columns:repeat(6,1fr);gap:3px}.nav button{border:0;background:transparent;color:#69727c;padding:7px 2px;border-radius:12px;font-size:10px;cursor:pointer}.nav span{display:block;font-size:19px;margin-bottom:2px}.nav button.active{background:#fff0f3;color:var(--red);font-weight:800}
+
+.service-tools,.attendance-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.service-tools input,.service-tools select,.attendance-tools input,.attendance-tools select{border:1px solid var(--line);background:#fff;border-radius:13px;padding:11px 13px}
+.service-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.service-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.service-card.today{border:2px solid var(--red);background:#fff7f9}
+.service-card h4{margin:0 0 4px;color:var(--navy)}.service-date{font-size:12px;color:var(--muted);margin-bottom:10px}
+.duty-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.duty{background:#f7f5f2;border-radius:11px;padding:9px;font-size:13px}.duty b{display:block;color:var(--red);font-size:11px;margin-bottom:3px}
+.attendance-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.att-stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px;text-align:center}.att-stat b{display:block;font-size:23px;color:var(--red)}.att-stat span{font-size:12px;color:var(--muted)}
+.att-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}.action-btn{border:0;border-radius:11px;padding:10px 12px;background:var(--navy);color:#fff;font-weight:800;cursor:pointer}.action-btn.secondary{background:#eceff2;color:var(--navy)}.action-btn.danger{background:#f7e7ea;color:var(--red)}
+.att-family{background:#fff;border:1px solid var(--line);border-radius:18px;margin-bottom:10px;overflow:hidden}.att-family-head{padding:13px 15px;background:#faf8f5;font-weight:800;color:var(--navy)}
+.att-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:11px 15px;border-top:1px solid var(--line)}.att-name small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.att-options{display:flex;gap:5px}.att-options button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;cursor:pointer;font-size:12px}.att-options button.active.present{background:#e6f5eb;border-color:#98d2aa;color:#176a35}.att-options button.active.absent{background:#fdecef;border-color:#e9a8b4;color:#9e1b32}.att-options button.active.online{background:#eaf1fa;border-color:#a9c5e8;color:#24578a}
+.local-note{background:#fff8e8;border:1px solid #edd69d;border-radius:13px;padding:11px 13px;color:#725614;font-size:13px;line-height:1.55;margin-bottom:13px}
+
+
+.att-group{background:#fff;border:1px solid var(--line);border-radius:18px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow)}
+.att-group-head{display:flex;align-items:center;gap:10px;padding:14px 15px;background:#faf8f5;cursor:pointer}
+.att-group-title{flex:1}.att-group-title h4{margin:0 0 3px;color:var(--navy)}.att-group-title small{color:var(--muted)}
+.att-group-actions{display:flex;gap:6px;flex-wrap:wrap}.mini-btn{border:0;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:800;cursor:pointer}.mini-btn.present{background:#e6f5eb;color:#176a35}.mini-btn.absent{background:#fdecef;color:#9e1b32}.mini-btn.online{background:#eaf1fa;color:#24578a}
+.att-group-body{display:none}.att-group.open .att-group-body{display:block}.att-group .chev{transition:.2s}.att-group.open .chev{transform:rotate(180deg)}
+.group-rate{font-weight:800;color:var(--red)}
+
+@media(max-width:760px){.brand img{width:84px;height:84px}.private{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.member-grid{grid-template-columns:1fr}.birthday-list{grid-template-columns:1fr}.service-grid{grid-template-columns:1fr}.attendance-summary{grid-template-columns:repeat(2,1fr)}.duty-grid{grid-template-columns:1fr}.person{grid-template-columns:40px 1fr auto}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><img src="logo.png" alt="구세군 로고"><div><h1>Gunpo Eunhye Corps<br>Family Management System</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<main>
+<section id="home" class="page active">
+<div class="hero"><h2>가족으로 연결되고, 믿음으로 함께하는 공동체</h2><p>가족 단위 명단, 개인 검색, 소속과 생일 통계를 한곳에서 확인합니다.</p></div>
+<div class="kpis"><div class="kpi"><span>총 가정</span><b id="familyKpi">0</b></div><div class="kpi"><span>총 교인</span><b id="memberKpi">0</b></div><div class="kpi"><span>평균 가족원</span><b id="avgKpi">0</b></div><div class="kpi"><span>소속 모임</span><b id="groupKpi">0</b></div></div>
+<div class="grid2"><div class="card"><h3>📢 최근 공지</h3><div id="homeNotices"></div></div><div class="card"><h3>📊 가족 규모 현황</h3><div id="familySizeChart" class="chart"></div></div></div>
+<div class="card" style="margin-top:16px"><h3>🎂 양력생일 알림</h3><div id="solarBirthdayHome"></div></div>
+</section>
+
+<section id="familiesPage" class="page"><h2 class="section-title">가족 명단</h2>
+<div class="toolbar"><input id="familySearch" placeholder="가족 대표자 또는 가족 구성원 검색"><select id="familyGroup"><option value="">모든 소속</option></select><select id="familySize"><option value="">모든 가족 규모</option><option value="1">1인 가정</option><option value="2">2인 가정</option><option value="3">3인 가정</option><option value="4">4인 이상</option></select></div>
+<div class="result"><span id="familyCount"></span><span>가족카드를 누르면 구성원이 펼쳐집니다.</span></div><div id="families" class="families"></div></section>
+
+<section id="membersPage" class="page"><h2 class="section-title">개인 검색</h2>
+<div class="toolbar"><input id="memberSearch" placeholder="이름, 직분, 가족코드, 소속 검색"><select id="positionFilter"><option value="">모든 직분</option></select><select id="memberGroup"><option value="">모든 소속</option></select></div>
+<div class="result"><span id="memberCount"></span><span>검색된 교인이 속한 가족도 함께 확인할 수 있습니다.</span></div><div id="memberGrid" class="member-grid"></div></section>
+
+<section id="statsPage" class="page"><h2 class="section-title">통계</h2>
+<div class="grid2"><div class="card"><h3>직분별 인원</h3><div id="positionChart" class="chart"></div></div><div class="card"><h3>소속별 인원</h3><div id="groupChart" class="chart"></div></div></div>
+<div class="card" style="margin-top:16px"><h3>월별 양력생일자 수</h3><div id="birthdayChart" class="chart"></div></div>
+<div class="card" style="margin-top:16px"><h3>🎂 월별 양력생일자 명단</h3>
+<div class="birthday-tools"><select id="birthdayMonth"></select><span id="birthdaySummary" class="birthday-summary"></span></div>
+<div id="birthdayList" class="birthday-list"></div></div>
+</section>
+
+
+<section id="servicePage" class="page"><h2 class="section-title">예배·봉사 일정</h2>
+<div class="service-tools"><select id="serviceMonth"><option value="">전체 월</option></select><input id="serviceSearch" placeholder="이름, 그룹, 행사 검색"></div>
+<div id="serviceGrid" class="service-grid"></div></section>
+
+<section id="attendancePage" class="page"><h2 class="section-title">주일예배 출석부</h2>
+
+<div id="attendanceTodayService" class="card" style="margin-bottom:12px"></div>
+<div id="attendanceBirthdays" class="card" style="margin-bottom:12px"></div>
+<div class="local-note">💾 이 버전의 출석 기록은 소속1 그룹별로 출석을 체크하며, 현재 사용 중인 휴대폰·컴퓨터에 저장됩니다. 여러 기기에서 함께 쓰려면 Firebase 연결이 추가로 필요합니다. 기록은 CSV로 내보내 백업할 수 있습니다.</div>
+<div class="attendance-tools"><label>예배일 <input id="attendanceDate" type="date"></label><input id="attendanceSearch" placeholder="이름 또는 가족 검색"></div>
+<div class="attendance-summary"><div class="att-stat"><b id="attTotal">0</b><span>전체</span></div><div class="att-stat"><b id="attPresent">0</b><span>출석</span></div><div class="att-stat"><b id="attOnline">0</b><span>온라인</span></div><div class="att-stat"><b id="attRate">0%</b><span>참석률</span></div></div>
+<div class="att-actions"><button id="markAllPresent" class="action-btn">전체 출석</button><button id="clearAttendance" class="action-btn danger">당일 기록 초기화</button><button id="exportAttendance" class="action-btn secondary">CSV 내보내기</button><button id="importAttendanceBtn" class="action-btn secondary">CSV 가져오기</button><input id="importAttendance" type="file" accept=".csv" hidden></div>
+<div id="attendanceList"></div></section>
+
+<section id="noticePage" class="page"><h2 class="section-title">공지사항</h2><div class="card"><div id="allNotices"></div></div></section>
+<section id="eventsPage" class="page"><h2 class="section-title">행사 일정</h2><div id="events" class="schedule"></div></section>
+<section id="morePage" class="page"><h2 class="section-title">이용 안내</h2><div class="info"><b>📱 앱처럼 설치</b><br>안드로이드 Chrome: ⋮ → 앱 설치 또는 홈 화면에 추가<br>아이폰 Safari: 공유 □↑ → 홈 화면에 추가<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><b>🔄 데이터 업데이트</b><br>명단이 변경되면 새 ZIP을 Netlify에 다시 업로드하면 같은 주소에서 최신 자료가 표시됩니다.<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><b>🔐 개인정보 보호</b><br>교회 내부에서만 사용하고 외부 전송이나 공개 게시를 삼가 주세요.</div></section>
+</main>
+<nav class="bottom"><div class="nav" style="grid-template-columns:repeat(8,1fr)">
+<button class="active" data-page="home"><span>🏠</span>홈</button>
+<button data-page="familiesPage"><span>👨‍👩‍👧</span>가족</button>
+<button data-page="membersPage"><span>👤</span>개인</button>
+<button data-page="servicePage"><span>🙏</span>봉사</button>
+<button data-page="attendancePage"><span>✅</span>출석</button>
+<button data-page="statsPage"><span>📊</span>통계</button>
+<button data-page="noticePage"><span>📢</span>공지</button>
+<button data-page="eventsPage"><span>📅</span>일정</button>
+</div></nav>
+</div>
+<script src="data.js"></script>
+<script src="service-data.js"></script>
+<script>
+const D=window.APP_DATA,$=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mask=p=>p?p.replace(/(\d{3})-(\d{3,4})-(\d{4})/,'$1-$2-****'):'미기재';
+const allGroups=Object.keys(D.stats.groups).sort((a,b)=>a.localeCompare(b,'ko'));
+const allPositions=Object.keys(D.stats.positions).filter(x=>x!=='미기재').sort((a,b)=>a.localeCompare(b,'ko'));
+function chart(el,obj,limit=30){const a=Object.entries(obj).sort((x,y)=>y[1]-x[1]).slice(0,limit),m=Math.max(1,...a.map(x=>x[1]));el.innerHTML=a.map(([k,v])=>`<div class="barrow"><span>${esc(k)}</span><div class="track"><div class="fill" style="width:${v/m*100}%"></div></div><b>${v}</b></div>`).join('')}
+function noticeHtml(){return D.notices.map(n=>`<article class="notice"><time>${esc(n.date)}</time><strong>${esc(n.title)}</strong><p>${esc(n.body)}</p></article>`).join('')}
+function personHtml(m){const tg=[m.group1,m.group2,m.group3,m.group4].filter(Boolean).map(g=>`<span class="tag">${esc(g)}</span>`).join('');return `<div class="person"><div class="avatar">${esc(m.name.slice(0,1))}</div><div><h5>${esc(m.name)}</h5><div class="meta">${esc(m.position||'직분 미기재')} · ${esc(m.birthday||'생일 미기재')}<br><span class="phoneText">${esc(mask(m.phone))}</span>${m.note?`<br>비고: ${esc(m.note)}`:''}</div><div class="tags">${tg}</div></div><button class="phone" data-phone="${esc(m.phone)}">연락처</button></div>`}
+function bindPhones(root){root.querySelectorAll('.phone').forEach(b=>b.onclick=()=>{const p=b.dataset.phone;if(!p){alert('등록된 연락처가 없습니다.');return}const t=b.closest('.person').querySelector('.phoneText'),show=b.textContent==='연락처';t.textContent=show?p:mask(p);b.textContent=show?'가리기':'연락처'})}
+function renderFamilies(){const q=$('#familySearch').value.trim().toLowerCase(),g=$('#familyGroup').value,s=$('#familySize').value;const arr=D.families.filter(f=>{const hay=(f.label+' '+f.code+' '+f.members.map(m=>[m.name,m.position,m.group1,m.group2,m.group3,m.group4].join(' ')).join(' ')).toLowerCase();const gm=!g||f.groups.includes(g);const sm=!s||(s==='4'?f.size>=4:f.size===Number(s));return(!q||hay.includes(q))&&gm&&sm});$('#familyCount').textContent=`검색 결과 ${arr.length}가정`;const root=$('#families');if(!arr.length){root.innerHTML='<div class="empty">검색 결과가 없습니다.</div>';return}root.innerHTML=arr.map(f=>`<article class="family"><div class="family-head"><div class="family-icon">👨‍👩‍👧</div><div class="family-title"><h4>${esc(f.label)}</h4><small>가족코드 ${esc(f.code)} · ${f.size}명${f.groups.length?' · '+esc(f.groups.join(', ')):''}</small></div><div class="chev">⌄</div></div><div class="family-body">${f.members.map(personHtml).join('')}</div></article>`).join('');root.querySelectorAll('.family-head').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));bindPhones(root)}
+function renderMembers(){const q=$('#memberSearch').value.trim().toLowerCase(),p=$('#positionFilter').value,g=$('#memberGroup').value;const arr=D.members.filter(m=>{const hay=[m.name,m.family,m.position,m.group1,m.group2,m.group3,m.group4,m.birthday,m.note].join(' ').toLowerCase();return(!q||hay.includes(q))&&(!p||m.position===p)&&(!g||[m.group1,m.group2,m.group3,m.group4].includes(g))}).sort((a,b)=>a.name.localeCompare(b.name,'ko'));$('#memberCount').textContent=`검색 결과 ${arr.length}명`;$('#memberGrid').innerHTML=arr.length?arr.map(m=>`<article class="member-card"><div class="avatar">${esc(m.name.slice(0,1))}</div><div><h4>${esc(m.name)}</h4><div class="meta">${esc(m.position||'직분 미기재')} · 가족코드 ${esc(m.family||'-')}<br>${esc(m.birthday||'생일 미기재')}</div><div class="tags">${[m.group1,m.group2,m.group3,m.group4].filter(Boolean).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div></article>`).join(''):'<div class="empty">검색 결과가 없습니다.</div>'}
+
+function birthdayInfo(text){
+  const b=parseSolarBirthday(text);
+  return b?{month:b.month,day:b.day,label:String(text||'')}:null;
+}
+function renderBirthdayList(){
+  const month=Number($('#birthdayMonth').value);
+  const arr=D.members.map(member=>({member,b:parseSolarBirthday(member.birthday)}))
+    .filter(x=>x.b&&x.b.month===month)
+    .sort((a,b)=>a.b.day-b.b.day||a.member.name.localeCompare(b.member.name,'ko'));
+  $('#birthdaySummary').textContent=`${month}월 양력생일자 ${arr.length}명`;
+  const root=$('#birthdayList');
+  if(!arr.length){root.innerHTML='<div class="empty">해당 월에 등록된 양력생일자가 없습니다.</div>';return}
+  root.innerHTML=arr.map(x=>`<article class="birthday-card"><div class="cake">🎂</div><div><h4>${String(x.b.month).padStart(2,'0')}월 ${String(x.b.day).padStart(2,'0')}일 · ${esc(x.member.name)}</h4><p>${esc(x.member.position||'직분 미기재')} · ${esc(familyLabelFor(x.member))}<br>소속1 ${esc(x.member.group1||'소속 미지정')}</p></div></article>`).join('');
+}
+
+const S=window.SERVICE_DATA||[];
+function displayDate(iso){
+  if(!iso)return '';
+  const d=new Date(iso+'T00:00:00');
+  if(isNaN(d))return iso;
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} (${['일','월','화','수','목','금','토'][d.getDay()]})`;
+}
+function renderServices(){
+  const month=$('#serviceMonth').value, q=$('#serviceSearch').value.trim().toLowerCase();
+  const today=new Date().toISOString().slice(0,10);
+  const arr=S.filter(x=>{
+    const mon=x.date.slice(5,7);
+    const hay=Object.values(x).join(' ').toLowerCase();
+    return(!month||mon===month)&&(!q||hay.includes(q));
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+  const root=$('#serviceGrid');
+  root.innerHTML=arr.length?arr.map(x=>`<article class="service-card ${x.date===today?'today':''}">
+    <h4>${esc(x.event||'주일예배')}</h4><div class="service-date">${displayDate(x.date)}</div>
+    <div class="duty-grid">
+      <div class="duty"><b>사회</b>${esc(x.leader||'-')}</div><div class="duty"><b>기도</b>${esc(x.prayer||'-')}</div>
+      <div class="duty"><b>안내</b>${esc(x.guide||'-')}</div><div class="duty"><b>식사</b>${esc(x.meal||'-')}</div>
+      <div class="duty"><b>청소</b>${esc(x.cleaning||'-')}</div><div class="duty"><b>전도</b>${esc(x.evangelism||'-')}</div>
+    </div></article>`).join(''):'<div class="empty">해당 일정이 없습니다.</div>';
+}
+
+function nearestService(date){
+  if(!S.length)return null;
+  return S.slice().sort((a,b)=>Math.abs(new Date(a.date)-new Date(date))-Math.abs(new Date(b.date)-new Date(date)))[0];
+}
+function renderAttendanceExtras(){
+  const date=$('#attendanceDate').value,svc=nearestService(date);
+  $('#attendanceTodayService').innerHTML=svc?`<h3>🙏 선택일 예배·봉사</h3><p style="margin:0;line-height:1.7"><b>${displayDate(svc.date)} ${esc(svc.event||'주일예배')}</b><br>사회 ${esc(svc.leader||'-')} · 기도 ${esc(svc.prayer||'-')}<br>안내 ${esc(svc.guide||'-')} · 식사 ${esc(svc.meal||'-')} · 전도 ${esc(svc.evangelism||'-')}</p>`:'<h3>🙏 선택일 예배·봉사</h3><p>등록된 일정이 없습니다.</p>';
+  const d=new Date(date+'T00:00:00'),start=new Date(d),end=new Date(d);start.setDate(d.getDate()-3);end.setDate(d.getDate()+3);
+  const list=D.members.filter(m=>{const x=birthdayInfo(m.birthday);if(!x)return false;const bd=new Date(d.getFullYear(),x.month-1,x.day);return bd>=start&&bd<=end}).sort((a,b)=>birthdayInfo(a.birthday).day-birthdayInfo(b.birthday).day);
+  $('#attendanceBirthdays').innerHTML=`<h3>🎂 선택일 전후 1주 양력생일자</h3>${list.length?'<p style="margin:0;line-height:1.8">'+list.map(m=>`${esc(m.name)} (${esc(m.birthday)})`).join('<br>')+'</p>':'<p style="margin:0;color:var(--muted)">해당 기간 생일자가 없습니다.</p>'}`;
+}
+
+
+function parseSolarBirthday(text){
+  const s=String(text||'').trim().replace(/\s+/g,'');
+  let m=s.match(/^(\d{1,2})월(\d{1,2})일$/);
+  if(!m)m=s.match(/^(\d{1,2})[.\/-](\d{1,2})$/);
+  if(!m)return null;
+  const month=Number(m[1]),day=Number(m[2]);
+  if(month<1||month>12||day<1||day>31)return null;
+  return {month,day};
+}
+function familyLabelFor(member){
+  const family=D.families.find(x=>x.code===member.family);
+  return family?family.label:(member.family||'개인');
+}
+function birthdayDisplay(item){
+  const mm=String(item.b.month).padStart(2,'0');
+  const dd=String(item.b.day).padStart(2,'0');
+  const pos=item.member.position?` · ${esc(item.member.position)}`:'';
+  return `${mm}월 ${dd}일 · ${esc(item.member.name)}${pos} · ${esc(familyLabelFor(item.member))}`;
+}
+function renderSolarBirthdayHome(){
+  const root=$('#solarBirthdayHome'); if(!root)return;
+  const now=new Date(),year=now.getFullYear(),today=new Date(year,now.getMonth(),now.getDate()),items=[];
+  D.members.forEach(member=>{
+    const b=parseSolarBirthday(member.birthday); if(!b)return;
+    let date=new Date(year,b.month-1,b.day);
+    if(date<today)date=new Date(year+1,b.month-1,b.day);
+    items.push({member,b,date,days:Math.round((date-today)/86400000)});
+  });
+  const byDateName=(a,b)=>a.b.month-b.b.month||a.b.day-b.b.day||a.member.name.localeCompare(b.member.name,'ko');
+  const todayList=items.filter(x=>x.days===0).sort(byDateName);
+  const next7=items.filter(x=>x.days>0&&x.days<=7).sort(byDateName);
+  const thisMonth=D.members.map(member=>({member,b:parseSolarBirthday(member.birthday)}))
+    .filter(x=>x.b&&x.b.month===now.getMonth()+1)
+    .sort(byDateName);
+  const sec=(title,list)=>`<div class="notice"><strong>${title}</strong><p>${list.length?list.map(birthdayDisplay).join('<br>'):'해당자가 없습니다.'}</p></div>`;
+  root.innerHTML=sec('오늘 생일',todayList)+sec('다가오는 7일',next7)+sec('이번 달 생일',thisMonth);
+}
+
+function attendanceKey(date){return 'gunpoAttendance:'+date}
+function getAttendance(){
+  try{return JSON.parse(localStorage.getItem(attendanceKey($('#attendanceDate').value))||'{}')}catch(e){return{}}
+}
+function saveAttendance(obj){localStorage.setItem(attendanceKey($('#attendanceDate').value),JSON.stringify(obj))}
+function setAttendance(name,status){
+  const obj=getAttendance();
+  if(status)obj[name]=status;else delete obj[name];
+  saveAttendance(obj);renderAttendance();
+}
+function attendanceGroups(){
+  const map=new Map();
+  D.members.forEach(m=>{
+    const g=(m.group1||'소속 미지정').trim()||'소속 미지정';
+    if(!map.has(g))map.set(g,[]);
+    map.get(g).push(m);
+  });
+  return [...map.entries()].sort((a,b)=>{
+    if(a[0]==='소속 미지정')return 1;if(b[0]==='소속 미지정')return -1;
+    return a[0].localeCompare(b[0],'ko');
+  });
+}
+function markGroup(group,status){
+  const obj=getAttendance();
+  D.members.filter(m=>((m.group1||'소속 미지정').trim()||'소속 미지정')===group).forEach(m=>obj[m.name]=status);
+  saveAttendance(obj);renderAttendance();
+}
+function renderAttendance(){
+  const q=$('#attendanceSearch').value.trim().toLowerCase(),obj=getAttendance();
+  let total=0,present=0,online=0,absent=0;
+  const cards=[];
+  attendanceGroups().forEach(([group,ms])=>{
+    const filtered=ms.filter(m=>(group+' '+m.name+' '+m.position+' '+m.family).toLowerCase().includes(q));
+    if(q&&!filtered.length)return;
+    let gp=0,go=0,ga=0;
+    const rows=filtered.map(m=>{
+      total++;const st=obj[m.name]||'';
+      if(st==='present'){present++;gp++}
+      if(st==='online'){online++;go++}
+      if(st==='absent'){absent++;ga++}
+      return `<div class="att-row"><div class="att-name"><b>${esc(m.name)}</b><small>${esc(m.position||'직분 미기재')} · 가족코드 ${esc(m.family||'-')}</small></div>
+      <div class="att-options">
+       <button class="${st==='present'?'active present':''}" onclick="setAttendance('${esc(m.name)}','present')">출석</button>
+       <button class="${st==='online'?'active online':''}" onclick="setAttendance('${esc(m.name)}','online')">온라인</button>
+       <button class="${st==='absent'?'active absent':''}" onclick="setAttendance('${esc(m.name)}','absent')">결석</button>
+      </div></div>`;
+    }).join('');
+    const checked=gp+go+ga,rate=filtered.length?Math.round((gp+go)/filtered.length*100):0;
+    cards.push(`<article class="att-group open">
+      <div class="att-group-head">
+        <div class="att-group-title"><h4>${esc(group)}</h4><small>${filtered.length}명 · 출석 ${gp} · 온라인 ${go} · 결석 ${ga} · 미체크 ${Math.max(0,filtered.length-checked)}</small></div>
+        <div class="group-rate">${rate}%</div><div class="chev">⌄</div>
+      </div>
+      <div class="att-group-body">
+        <div class="att-group-actions" style="padding:10px 15px;border-bottom:1px solid var(--line)">
+          <button class="mini-btn present" onclick="markGroup('${esc(group)}','present')">그룹 전체 출석</button>
+          <button class="mini-btn online" onclick="markGroup('${esc(group)}','online')">그룹 전체 온라인</button>
+          <button class="mini-btn absent" onclick="markGroup('${esc(group)}','absent')">그룹 전체 결석</button>
+        </div>${rows}
+      </div></article>`);
+  });
+  $('#attendanceList').innerHTML=cards.join('')||'<div class="empty">검색 결과가 없습니다.</div>';
+  $('#attTotal').textContent=total;$('#attPresent').textContent=present;$('#attOnline').textContent=online;
+  $('#attRate').textContent=total?Math.round((present+online)/total*100)+'%':'0%';
+  document.querySelectorAll('.att-group-head').forEach(h=>h.onclick=e=>{if(e.target.closest('button'))return;h.parentElement.classList.toggle('open')});
+}
+function exportAttendanceCsv(){
+  const date=$('#attendanceDate').value,obj=getAttendance();
+  const lines=[['예배일','소속1','가족코드','가정','성명','직분','상태']];
+  D.families.forEach(f=>f.members.forEach(m=>lines.push([date,m.group1||'소속 미지정',f.code,f.label,m.name,m.position||'',({present:'출석',online:'온라인',absent:'결석'}[obj[m.name]]||'미체크')])));
+  const csv='\ufeff'+lines.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=`주일예배_출석부_${date}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function importAttendanceCsv(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const lines=String(reader.result).replace(/^\ufeff/,'').split(/\r?\n/).filter(Boolean);
+    const obj={};
+    lines.slice(1).forEach(line=>{
+      const cols=[];let cur='',quote=false;
+      for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'&&line[i+1]==='"'){cur+='"';i++}else if(c==='"'){quote=!quote}else if(c===','&&!quote){cols.push(cur);cur=''}else cur+=c}cols.push(cur);
+      if(cols[4]&&['present','online','absent','출석','온라인','결석'].includes(cols[6])){
+        obj[cols[4]]={'출석':'present','온라인':'online','결석':'absent'}[cols[6]]||cols[6];
+      }
+    });
+    saveAttendance(obj);renderAttendance();alert('출석 기록을 가져왔습니다.');
+  };reader.readAsText(file,'utf-8');
+}
+
+function init(){const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;$('#homeNotices').innerHTML=noticeHtml();$('#allNotices').innerHTML=noticeHtml();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
+  for(let i=1;i<=12;i++)$('#birthdayMonth').insertAdjacentHTML('beforeend',`<option value="${i}">${i}월</option>`);
+  $('#birthdayMonth').value=String(new Date().getMonth()+1);
+  $('#birthdayMonth').addEventListener('change',renderBirthdayList);
+  renderBirthdayList();renderSolarBirthdayHome();allGroups.forEach(x=>{$('#familyGroup').insertAdjacentHTML('beforeend',`<option>${esc(x)}</option>`);$('#memberGroup').insertAdjacentHTML('beforeend',`<option>${esc(x)}</option>`)});allPositions.forEach(x=>$('#positionFilter').insertAdjacentHTML('beforeend',`<option>${esc(x)}</option>`));
+  const months=[...new Set(S.map(x=>x.date.slice(5,7)))].sort();months.forEach(m=>$('#serviceMonth').insertAdjacentHTML('beforeend',`<option value="${m}">${Number(m)}월</option>`));
+  $('#serviceMonth').addEventListener('change',renderServices);$('#serviceSearch').addEventListener('input',renderServices);renderServices();
+  const now=new Date(),sunday=new Date(now);sunday.setDate(now.getDate()-now.getDay());$('#attendanceDate').value=sunday.toISOString().slice(0,10);
+  $('#attendanceDate').addEventListener('change',()=>{renderAttendance();renderAttendanceExtras()});$('#attendanceSearch').addEventListener('input',renderAttendance);
+  $('#markAllPresent').onclick=()=>{const o={};D.members.forEach(m=>o[m.name]='present');saveAttendance(o);renderAttendance()};
+  $('#clearAttendance').onclick=()=>{if(confirm('선택한 날짜의 출석 기록을 모두 지울까요?')){localStorage.removeItem(attendanceKey($('#attendanceDate').value));renderAttendance()}};
+  $('#exportAttendance').onclick=exportAttendanceCsv;$('#importAttendanceBtn').onclick=()=>$('#importAttendance').click();
+  $('#importAttendance').onchange=e=>{if(e.target.files[0])importAttendanceCsv(e.target.files[0])};renderAttendance();renderAttendanceExtras();
+
+  $('#events').innerHTML=D.events.map(e=>`<div class="schedule-item"><small>${esc(e.date)}</small><b>${esc(e.title)}</b><span>${esc(e.detail)}</span></div>`).join('');renderFamilies();renderMembers();['familySearch','familyGroup','familySize'].forEach(id=>$('#'+id).addEventListener(id==='familySearch'?'input':'change',renderFamilies));['memberSearch','positionFilter','memberGroup'].forEach(id=>$('#'+id).addEventListener(id==='memberSearch'?'input':'change',renderMembers));document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav button').forEach(n=>n.classList.remove('active'));$('#'+b.dataset.page).classList.add('active');b.classList.add('active');scrollTo(0,0)});if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')}
+init();
+</script>
+</body></html>
