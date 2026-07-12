@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v2.5",
+  "name": "Gunpo Eunhye Corps Family Management System v3.0",
   "short_name": "Gunpo Eunhye",
-  "description": "양력생일 숫자 날짜순 정렬, 최신 교인명단, 소속1 그룹별 출석부",
+  "description": "날짜별 출석 저장, GitHub CSV 공유, 가족명단과 봉사일정",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

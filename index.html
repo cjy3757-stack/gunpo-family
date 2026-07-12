@@ -54,6 +54,11 @@ main{max-width:1120px;margin:auto;padding:18px 14px}.page{display:none}.page.act
 .att-group-body{display:none}.att-group.open .att-group-body{display:block}.att-group .chev{transition:.2s}.att-group.open .chev{transform:rotate(180deg)}
 .group-rate{font-weight:800;color:var(--red)}
 
+
+.remote-status{margin:10px 0;padding:10px 12px;border-radius:12px;background:#f2f4f6;color:var(--muted);font-size:13px;line-height:1.55}
+.remote-status.ok{background:#eaf6ee;color:#176a35}
+.remote-status.warn{background:#fff4e5;color:#7a5917}
+
 @media(max-width:760px){.brand img{width:84px;height:84px}.private{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.member-grid{grid-template-columns:1fr}.birthday-list{grid-template-columns:1fr}.service-grid{grid-template-columns:1fr}.attendance-summary{grid-template-columns:repeat(2,1fr)}.duty-grid{grid-template-columns:1fr}.person{grid-template-columns:40px 1fr auto}}
 </style>
 </head>
@@ -96,7 +101,15 @@ main{max-width:1120px;margin:auto;padding:18px 14px}.page{display:none}.page.act
 <div class="local-note">💾 이 버전의 출석 기록은 소속1 그룹별로 출석을 체크하며, 현재 사용 중인 휴대폰·컴퓨터에 저장됩니다. 여러 기기에서 함께 쓰려면 Firebase 연결이 추가로 필요합니다. 기록은 CSV로 내보내 백업할 수 있습니다.</div>
 <div class="attendance-tools"><label>예배일 <input id="attendanceDate" type="date"></label><input id="attendanceSearch" placeholder="이름 또는 가족 검색"></div>
 <div class="attendance-summary"><div class="att-stat"><b id="attTotal">0</b><span>전체</span></div><div class="att-stat"><b id="attPresent">0</b><span>출석</span></div><div class="att-stat"><b id="attOnline">0</b><span>온라인</span></div><div class="att-stat"><b id="attRate">0%</b><span>참석률</span></div></div>
-<div class="att-actions"><button id="markAllPresent" class="action-btn">전체 출석</button><button id="clearAttendance" class="action-btn danger">당일 기록 초기화</button><button id="exportAttendance" class="action-btn secondary">CSV 내보내기</button><button id="importAttendanceBtn" class="action-btn secondary">CSV 가져오기</button><input id="importAttendance" type="file" accept=".csv" hidden></div>
+<div class="att-actions">
+<button id="markAllPresent" class="action-btn">전체 출석</button>
+<button id="clearAttendance" class="action-btn danger">당일 기록 초기화</button>
+<button id="loadGitHubAttendance" class="action-btn secondary">GitHub 출석 불러오기</button>
+<button id="exportAttendance" class="action-btn secondary">날짜별 CSV 저장</button>
+<button id="importAttendanceBtn" class="action-btn secondary">CSV 가져오기</button>
+<input id="importAttendance" type="file" accept=".csv" hidden>
+</div>
+<div id="remoteAttendanceStatus" class="remote-status">날짜를 선택하면 이 휴대폰의 저장 기록을 먼저 불러오고, 기록이 없으면 GitHub의 날짜별 CSV를 확인합니다.</div>
 <div id="attendanceList"></div></section>
 
 <section id="noticePage" class="page"><h2 class="section-title">공지사항</h2><div class="card"><div id="allNotices"></div></div></section>
@@ -286,28 +299,82 @@ function renderAttendance(){
   $('#attRate').textContent=total?Math.round((present+online)/total*100)+'%':'0%';
   document.querySelectorAll('.att-group-head').forEach(h=>h.onclick=e=>{if(e.target.closest('button'))return;h.parentElement.classList.toggle('open')});
 }
+
+function attendanceCsvFilename(date){
+  return `attendance-${date}.csv`;
+}
+function parseAttendanceCsvText(text){
+  const lines=String(text||'').replace(/^\ufeff/,'').split(/\r?\n/).filter(Boolean);
+  const obj={};
+  lines.slice(1).forEach(line=>{
+    const cols=[];let cur='',quote=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'&&line[i+1]==='"'){cur+='"';i++}
+      else if(c==='"'){quote=!quote}
+      else if(c===','&&!quote){cols.push(cur);cur=''}
+      else cur+=c;
+    }
+    cols.push(cur);
+    const name=cols[4]||cols[3]||'';
+    const status=cols[6]||cols[5]||'';
+    const mapped={'출석':'present','온라인':'online','결석':'absent','present':'present','online':'online','absent':'absent'}[status];
+    if(name&&mapped)obj[name]=mapped;
+  });
+  return obj;
+}
+async function loadGitHubAttendance(force=false){
+  const date=$('#attendanceDate').value;
+  const statusEl=$('#remoteAttendanceStatus');
+  const local=getAttendance();
+  if(!force&&Object.keys(local).length){
+    statusEl.className='remote-status ok';
+    statusEl.textContent=`${date} 출석 기록을 이 기기에서 불러왔습니다.`;
+    renderAttendance();
+    return;
+  }
+  statusEl.className='remote-status';
+  statusEl.textContent=`GitHub에서 ${attendanceCsvFilename(date)} 파일을 확인하는 중입니다...`;
+  try{
+    const response=await fetch(`./${attendanceCsvFilename(date)}?v=${Date.now()}`,{cache:'no-store'});
+    if(!response.ok)throw new Error('not found');
+    const obj=parseAttendanceCsvText(await response.text());
+    saveAttendance(obj);
+    renderAttendance();
+    statusEl.className='remote-status ok';
+    statusEl.textContent=`GitHub의 ${attendanceCsvFilename(date)} 출석 기록을 불러왔습니다.`;
+  }catch(e){
+    if(force){
+      statusEl.className='remote-status warn';
+      statusEl.textContent=`GitHub에 ${attendanceCsvFilename(date)} 파일이 없습니다. 이 날짜의 출석을 새로 체크해 주세요.`;
+    }else{
+      statusEl.className='remote-status';
+      statusEl.textContent=`저장된 출석 기록이 없어 빈 출석부로 시작합니다. 체크 후 날짜별 CSV를 저장해 GitHub에 올리세요.`;
+    }
+    renderAttendance();
+  }
+}
+
 function exportAttendanceCsv(){
   const date=$('#attendanceDate').value,obj=getAttendance();
   const lines=[['예배일','소속1','가족코드','가정','성명','직분','상태']];
   D.families.forEach(f=>f.members.forEach(m=>lines.push([date,m.group1||'소속 미지정',f.code,f.label,m.name,m.position||'',({present:'출석',online:'온라인',absent:'결석'}[obj[m.name]]||'미체크')])));
   const csv='\ufeff'+lines.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download=`주일예배_출석부_${date}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  a.href=URL.createObjectURL(blob);a.download=`attendance-${date}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 function importAttendanceCsv(file){
   const reader=new FileReader();
   reader.onload=()=>{
-    const lines=String(reader.result).replace(/^\ufeff/,'').split(/\r?\n/).filter(Boolean);
-    const obj={};
-    lines.slice(1).forEach(line=>{
-      const cols=[];let cur='',quote=false;
-      for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'&&line[i+1]==='"'){cur+='"';i++}else if(c==='"'){quote=!quote}else if(c===','&&!quote){cols.push(cur);cur=''}else cur+=c}cols.push(cur);
-      if(cols[4]&&['present','online','absent','출석','온라인','결석'].includes(cols[6])){
-        obj[cols[4]]={'출석':'present','온라인':'online','결석':'absent'}[cols[6]]||cols[6];
-      }
-    });
-    saveAttendance(obj);renderAttendance();alert('출석 기록을 가져왔습니다.');
-  };reader.readAsText(file,'utf-8');
+    const obj=parseAttendanceCsvText(reader.result);
+    saveAttendance(obj);
+    renderAttendance();
+    const statusEl=$('#remoteAttendanceStatus');
+    statusEl.className='remote-status ok';
+    statusEl.textContent=`CSV 파일을 ${$('#attendanceDate').value} 출석 기록으로 가져왔습니다.`;
+    alert('출석 기록을 가져왔습니다.');
+  };
+  reader.readAsText(file,'utf-8');
 }
 
 function init(){const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;$('#homeNotices').innerHTML=noticeHtml();$('#allNotices').innerHTML=noticeHtml();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
@@ -318,11 +385,11 @@ function init(){const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이�
   const months=[...new Set(S.map(x=>x.date.slice(5,7)))].sort();months.forEach(m=>$('#serviceMonth').insertAdjacentHTML('beforeend',`<option value="${m}">${Number(m)}월</option>`));
   $('#serviceMonth').addEventListener('change',renderServices);$('#serviceSearch').addEventListener('input',renderServices);renderServices();
   const now=new Date(),sunday=new Date(now);sunday.setDate(now.getDate()-now.getDay());$('#attendanceDate').value=sunday.toISOString().slice(0,10);
-  $('#attendanceDate').addEventListener('change',()=>{renderAttendance();renderAttendanceExtras()});$('#attendanceSearch').addEventListener('input',renderAttendance);
+  $('#attendanceDate').addEventListener('change',()=>{renderAttendanceExtras();loadGitHubAttendance(false)});$('#attendanceSearch').addEventListener('input',renderAttendance);
   $('#markAllPresent').onclick=()=>{const o={};D.members.forEach(m=>o[m.name]='present');saveAttendance(o);renderAttendance()};
   $('#clearAttendance').onclick=()=>{if(confirm('선택한 날짜의 출석 기록을 모두 지울까요?')){localStorage.removeItem(attendanceKey($('#attendanceDate').value));renderAttendance()}};
-  $('#exportAttendance').onclick=exportAttendanceCsv;$('#importAttendanceBtn').onclick=()=>$('#importAttendance').click();
-  $('#importAttendance').onchange=e=>{if(e.target.files[0])importAttendanceCsv(e.target.files[0])};renderAttendance();renderAttendanceExtras();
+  $('#loadGitHubAttendance').onclick=()=>loadGitHubAttendance(true);$('#exportAttendance').onclick=exportAttendanceCsv;$('#importAttendanceBtn').onclick=()=>$('#importAttendance').click();
+  $('#importAttendance').onchange=e=>{if(e.target.files[0])importAttendanceCsv(e.target.files[0])};renderAttendanceExtras();loadGitHubAttendance(false);
 
   $('#events').innerHTML=D.events.map(e=>`<div class="schedule-item"><small>${esc(e.date)}</small><b>${esc(e.title)}</b><span>${esc(e.detail)}</span></div>`).join('');renderFamilies();renderMembers();['familySearch','familyGroup','familySize'].forEach(id=>$('#'+id).addEventListener(id==='familySearch'?'input':'change',renderFamilies));['memberSearch','positionFilter','memberGroup'].forEach(id=>$('#'+id).addEventListener(id==='memberSearch'?'input':'change',renderMembers));document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav button').forEach(n=>n.classList.remove('active'));$('#'+b.dataset.page).classList.add('active');b.classList.add('active');scrollTo(0,0)});if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')}
 init();
