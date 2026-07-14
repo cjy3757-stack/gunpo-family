@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v4.0",
+  "name": "Gunpo Eunhye Corps Family Management System v6.0",
   "short_name": "Gunpo Eunhye",
-  "description": "출석 추세 통계, 불출석자 카카오톡 공유, 현재 월 봉사 일정, 최신 명단",
+  "description": "쉬운 사용, 큰 글씨, 전체 백업·복원, 출석과 돌봄 관리",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
