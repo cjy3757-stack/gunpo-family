@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v7.0",
+  "name": "Gunpo Eunhye Corps Family Management System v7.2",
   "short_name": "Gunpo Eunhye",
-  "description": "정식 운영용 안정화 버전: 가족 명단, 출석, 통계, 돌봄, 공지, 교회 일정",
+  "description": "운영 안내 배너를 제거한 정식 배포 버전",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
