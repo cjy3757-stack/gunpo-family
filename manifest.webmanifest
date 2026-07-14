@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v6.0",
+  "name": "Gunpo Eunhye Corps Family Management System v6.1",
   "short_name": "Gunpo Eunhye",
-  "description": "쉬운 사용, 큰 글씨, 전체 백업·복원, 출석과 돌봄 관리",
+  "description": "화면 배치 개선, 올해 출석목표, 1월부터 12월 출석과 목표 비교 그래프",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

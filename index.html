@@ -129,11 +129,15 @@ html.large-mode .att-row{padding:15px}
 html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 @media(max-width:760px){.quick-actions{grid-template-columns:1fr}.attendance-tools{display:grid;grid-template-columns:1fr}}
 
+
+.month-col.goal-col{min-width:62px}
+.month-col.goal-col .month-bar{background:linear-gradient(180deg,#b88319,#7d5709)}
+.month-col.goal-col .month-label{font-weight:800;color:#7d5709}
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img src="logo.png" alt="구세군 로고"><div><h1>Gunpo Eunhye Corps<br>Family Management System <small style='font-size:14px'>v6.0</small></h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img src="logo.png" alt="구세군 로고"><div><h1>Gunpo Eunhye Corps<br>Family Management System <small style='font-size:14px'>v6.1</small></h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section id="home" class="page active">
 <div id="installBanner" class="install-banner">
@@ -149,22 +153,8 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
     <button data-jump="carePage">📞 돌봄 관리</button>
   </div>
 </div>
-<div class="easy-panel">
-  <h3>💾 백업과 복원</h3>
-  <div class="backup-box">
-    <button id="backupAll" class="action-btn">전체 백업 저장</button>
-    <button id="restoreAllBtn" class="action-btn secondary">백업 복원</button>
-    <input id="restoreAllInput" type="file" accept=".json" hidden>
-  </div>
-  <p class="simple-help">이 휴대폰에 저장된 출석 기록과 출석 목표를 한 파일로 보관합니다.</p>
-</div>
-<div class="easy-panel">
-  <h3>👀 보기 설정</h3>
-  <div class="backup-box">
-    <button id="toggleLargeText" class="action-btn secondary">큰 글씨 켜기</button>
-    <button id="resetLocalData" class="action-btn danger">이 기기 기록 초기화</button>
-  </div>
-</div>
+
+
 
 <div class="hero"><h2>가족으로 연결되고, 믿음으로 함께하는 공동체</h2><p>가족 단위 명단, 개인 검색, 소속과 생일 통계를 한곳에서 확인합니다.</p></div>
 <div class="kpis"><div class="kpi"><span>총 가정</span><b id="familyKpi">0</b></div><div class="kpi"><span>총 교인</span><b id="memberKpi">0</b></div><div class="kpi"><span>평균 가족원</span><b id="avgKpi">0</b></div><div class="kpi"><span>소속 모임</span><b id="groupKpi">0</b></div></div>
@@ -173,7 +163,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 
 <div class="card goal-card">
   <div class="goal-head">
-    <div><h3 style="margin:0">🎯 이번 주 출석 목표</h3><p style="margin:5px 0 0;color:var(--muted);font-size:13px">성결예배 기준</p></div>
+    <div><h3 style="margin:0">🎯 올해 출석 목표</h3><p style="margin:5px 0 0;color:var(--muted);font-size:13px">성결예배 월평균 기준</p></div>
     <label>목표 <input id="attendanceGoal" type="number" min="1" value="80"> 명</label>
   </div>
   <div class="goal-progress"><i id="attendanceGoalBar" style="width:0%"></i></div>
@@ -194,12 +184,29 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
     </label>
     <button id="refreshHomeAttendance" class="action-btn secondary">그래프 새로고침</button>
   </div>
-  <div id="homeAttendanceStatus" class="remote-status">GitHub에 저장된 출석 CSV를 기준으로 최근 12개월 평균 출석 인원을 계산합니다.</div>
+  <div id="homeAttendanceStatus" class="remote-status">올해 1월부터 12월까지 월평균 출석 인원과 올해 출석목표를 함께 표시합니다.</div>
   <div id="homeMonthlyAttendanceChart" class="monthly-chart"></div>
-  <p class="home-chart-note">※ 월별 수치는 해당 예배의 월간 평균 참석 인원입니다. 참석 인원은 출석과 온라인을 합산합니다.</p>
+  <p class="home-chart-note">※ 1월부터 12월까지 월평균 참석 인원을 표시하며, 맨 오른쪽 목표 막대와 비교할 수 있습니다. 참석 인원은 출석과 온라인을 합산합니다.</p>
 </div>
 
 <div class="card" style="margin-top:16px"><h3>🎂 생일 알림</h3><div id="solarBirthdayHome"></div></div>
+
+<div class="easy-panel">
+  <h3>💾 백업과 복원</h3>
+  <div class="backup-box">
+    <button id="backupAll" class="action-btn">전체 백업 저장</button>
+    <button id="restoreAllBtn" class="action-btn secondary">백업 복원</button>
+    <input id="restoreAllInput" type="file" accept=".json" hidden>
+  </div>
+  <p class="simple-help">이 휴대폰에 저장된 출석 기록과 출석 목표를 한 파일로 보관합니다.</p>
+</div>
+<div class="easy-panel">
+  <h3>👀 보기 설정</h3>
+  <div class="backup-box">
+    <button id="toggleLargeText" class="action-btn secondary">큰 글씨 켜기</button>
+    <button id="resetLocalData" class="action-btn danger">이 기기 기록 초기화</button>
+  </div>
+</div>
 </section>
 
 <section id="familiesPage" class="page"><h2 class="section-title">가족 명단</h2>
@@ -699,12 +706,9 @@ async function loadAttendanceStats(){
 function monthKey(date){
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
 }
-function lastTwelveMonths(){
-  const now=new Date(),arr=[];
-  for(let i=11;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    arr.push({key:monthKey(d),label:`${d.getMonth()+1}월`,year:d.getFullYear(),month:d.getMonth()+1});
-  }
+function currentYearMonths(){
+  const year=new Date().getFullYear(),arr=[];
+  for(let month=1;month<=12;month++)arr.push({key:`${year}-${String(month).padStart(2,'0')}`,label:`${month}월`,year,month});
   return arr;
 }
 function serviceDatesInMonth(year,month,service){
@@ -718,10 +722,11 @@ function serviceDatesInMonth(year,month,service){
 async function loadHomeMonthlyAttendance(){
   const service=$('#homeAttendanceService').value;
   const status=$('#homeAttendanceStatus'),root=$('#homeMonthlyAttendanceChart');
+  const year=new Date().getFullYear(),goal=getGoal();
   status.className='remote-status';
-  status.textContent=`${service} 최근 12개월 출석 자료를 불러오는 중입니다...`;
+  status.textContent=`${year}년 ${service} 월별 출석 자료를 불러오는 중입니다...`;
   root.innerHTML='';
-  const months=lastTwelveMonths(),result=[];
+  const months=currentYearMonths(),result=[];
   for(const item of months){
     const dates=serviceDatesInMonth(item.year,item.month,service),counts=[];
     for(const date of dates){
@@ -731,20 +736,19 @@ async function loadHomeMonthlyAttendance(){
     result.push({...item,avg:counts.length?counts.reduce((a,b)=>a+b,0)/counts.length:null,count:counts.length});
   }
   const available=result.filter(x=>x.avg!==null);
-  if(!available.length){
-    status.className='remote-status warn';
-    status.textContent='월별 그래프를 만들 출석 CSV가 없습니다. 날짜·예배별 CSV를 GitHub에 올린 후 다시 확인하세요.';
-    root.innerHTML='<div class="empty" style="min-width:100%">출석 데이터가 없습니다.</div>';
-    return;
-  }
-  const max=Math.max(...available.map(x=>x.avg),1);
+  const max=Math.max(goal,...available.map(x=>x.avg),1);
   root.innerHTML=result.map(x=>{
     const height=x.avg===null?3:Math.max(8,x.avg/max*100);
     const value=x.avg===null?'-':x.avg.toFixed(1);
     return `<div class="month-col"><div class="month-bar-wrap"><div class="month-bar" style="height:${height}%;opacity:${x.avg===null?.18:1}"><span>${value}</span></div></div><div class="month-label">${x.label}</div></div>`;
-  }).join('');
-  status.className='remote-status ok';
-  status.textContent=`${service} 최근 12개월 중 ${available.length}개월의 출석 데이터를 표시했습니다.`;
+  }).join('')+`<div class="month-col goal-col"><div class="month-bar-wrap"><div class="month-bar" style="height:${Math.max(8,goal/max*100)}%"><span>${goal}</span></div></div><div class="month-label">올해 목표</div></div>`;
+  if(!available.length){
+    status.className='remote-status warn';
+    status.textContent=`${year}년 출석 CSV가 아직 없습니다. 목표 ${goal}명 막대만 표시합니다.`;
+  }else{
+    status.className='remote-status ok';
+    status.textContent=`${year}년 ${service} 월별 출석 ${available.length}개월과 올해 목표 ${goal}명을 비교합니다.`;
+  }
 }
 
 
@@ -755,8 +759,8 @@ async function updateAttendanceGoal(){
   const current=await fetchAttendanceCount(dates[0],'성결예배');
   const count=current===null?0:current,rate=goal?Math.round(count/goal*100):0;
   $('#attendanceGoal').value=goal;
-  $('#attendanceGoalCurrent').textContent=current===null?'현재 자료 없음':`현재 ${count}명`;
-  $('#attendanceGoalRate').textContent=`${rate}%`;
+  $('#attendanceGoalCurrent').textContent=current===null?'최근 출석 자료 없음':`최근 출석 ${count}명`;
+  $('#attendanceGoalRate').textContent=`목표 대비 ${rate}%`;
   $('#attendanceGoalBar').style.width=Math.min(rate,100)+'%';
 }
 
@@ -891,7 +895,7 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   $('#shareAbsent').onclick=shareAbsentList;$('#copyAbsent').onclick=copyAbsentList;$('#exportAbsent').onclick=exportAbsentCsv;
   $('#statsDate').value=$('#attendanceDate').value;$('#statsService').value='성결예배';$('#careDate').value=$('#attendanceDate').value;$('#careService').value='성결예배';$('#refreshCare').onclick=loadCareManagement;$('#shareCare').onclick=shareCareList;$('#copyCare').onclick=copyCareList;$('#refreshStats').onclick=loadAttendanceStats;$('#statsService').onchange=loadAttendanceStats;$('#statsDate').onchange=loadAttendanceStats;
   $('#homeAttendanceService').onchange=loadHomeMonthlyAttendance;$('#refreshHomeAttendance').onclick=loadHomeMonthlyAttendance;loadHomeMonthlyAttendance();
-  $('#attendanceGoal').value=getGoal();$('#attendanceGoal').onchange=e=>{setGoal(e.target.value);updateAttendanceGoal()};updateAttendanceGoal();
+  $('#attendanceGoal').value=getGoal();$('#attendanceGoal').onchange=e=>{setGoal(e.target.value);updateAttendanceGoal();loadHomeMonthlyAttendance()};updateAttendanceGoal();
 
   $('#events').innerHTML=D.events.map(e=>`<div class="schedule-item"><small>${esc(e.date)}</small><b>${esc(e.title)}</b><span>${esc(e.detail)}</span></div>`).join('');renderFamilies();renderMembers();['familySearch','familyGroup','familySize'].forEach(id=>$('#'+id).addEventListener(id==='familySearch'?'input':'change',renderFamilies));['memberSearch','positionFilter','memberGroup'].forEach(id=>$('#'+id).addEventListener(id==='memberSearch'?'input':'change',renderMembers));document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav button').forEach(n=>n.classList.remove('active'));$('#'+b.dataset.page).classList.add('active');b.classList.add('active');if(b.dataset.page==='statsPage')loadAttendanceStats();if(b.dataset.page==='carePage')loadCareManagement();scrollTo(0,0)});if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')}
 init();
