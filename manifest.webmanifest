@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v7.3",
+  "name": "Gunpo Eunhye Corps Family Management System v7.4",
   "short_name": "Gunpo Eunhye",
-  "description": "올해 출석목표 60명, 모바일 월별 그래프 현재월까지 표시",
+  "description": "출석자 명단 공유·복사, 불출석자 공유, 모바일 출석관리",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

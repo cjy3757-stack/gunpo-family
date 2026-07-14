@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9e1b32">
 <meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v7.3</small></title>
+<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v7.4</small></title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -311,6 +311,8 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <button id="loadGitHubAttendance" class="action-btn secondary">GitHub 출석 불러오기</button>
 <button id="exportAttendance" class="action-btn secondary">날짜별 CSV 저장</button>
 <button id="importAttendanceBtn" class="action-btn secondary">CSV 가져오기</button>
+<button id="sharePresent" class="action-btn">출석자 명단 공유</button>
+<button id="copyPresent" class="action-btn secondary">출석자 명단 복사</button>
 <button id="shareAbsent" class="action-btn">불출석 명단 공유</button>
 <button id="copyAbsent" class="action-btn secondary">불출석 명단 복사</button>
 <button id="exportAbsent" class="action-btn secondary">불출석 CSV 저장</button>
@@ -679,6 +681,52 @@ function renderAttendance(){
   document.querySelectorAll('.att-group-head').forEach(h=>h.onclick=e=>{if(e.target.closest('button'))return;h.parentElement.classList.toggle('open')});
   renderCompactAttendance();
 }
+
+function presentShareText(){
+  const date=$('#attendanceDate').value,service=currentServiceType();
+  const rows=currentAttendanceRows().filter(x=>x.status==='present'||x.status==='online');
+  const groups=groupAttendanceRows(rows);
+  let text=`[${date} ${service} 출석자]\n\n`;
+  if(!groups.length)return text+'출석자로 체크된 성도가 없습니다.';
+  groups.forEach(([g,list])=>{
+    const present=list.filter(x=>x.status==='present').map(x=>x.member.name);
+    const online=list.filter(x=>x.status==='online').map(x=>x.member.name);
+    text+=`${g}\n`;
+    if(present.length)text+=`출석: ${present.join(', ')}\n`;
+    if(online.length)text+=`온라인: ${online.join(', ')}\n`;
+    text+='\n';
+  });
+  const presentCount=rows.filter(x=>x.status==='present').length;
+  const onlineCount=rows.filter(x=>x.status==='online').length;
+  text+=`합계: 출석 ${presentCount}명`;
+  if(onlineCount)text+=`, 온라인 ${onlineCount}명`;
+  return text;
+}
+async function sharePresentList(){
+  const text=presentShareText();
+  $('#absentSharePreview').style.display='block';
+  $('#absentSharePreview').textContent=text;
+  try{
+    if(navigator.share){
+      await navigator.share({title:'출석자 명단',text});
+    }else{
+      await navigator.clipboard.writeText(text);
+      alert('공유 기능을 지원하지 않아 명단을 복사했습니다. 카카오톡에 붙여넣으세요.');
+    }
+  }catch(e){}
+}
+async function copyPresentList(){
+  const text=presentShareText();
+  $('#absentSharePreview').style.display='block';
+  $('#absentSharePreview').textContent=text;
+  try{
+    await navigator.clipboard.writeText(text);
+    alert('출석자 명단을 복사했습니다. 카카오톡에 붙여넣으세요.');
+  }catch(e){
+    prompt('아래 내용을 복사하세요.',text);
+  }
+}
+
 function absentShareText(){
   const date=$('#attendanceDate').value,service=currentServiceType();
   const rows=currentAttendanceRows().filter(x=>x.status==='absent');
@@ -968,7 +1016,7 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   $('#loadGitHubAttendance').onclick=()=>loadGitHubAttendance(true);$('#exportAttendance').onclick=exportAttendanceCsv;$('#importAttendanceBtn').onclick=()=>$('#importAttendance').click();
   $('#importAttendance').onchange=e=>{if(e.target.files[0])importAttendanceCsv(e.target.files[0])};renderAttendanceExtras();loadGitHubAttendance(false);
   document.querySelectorAll('[data-att-view]').forEach(b=>b.onclick=()=>{attendanceView=b.dataset.attView;renderCompactAttendance()});
-  $('#shareAbsent').onclick=shareAbsentList;$('#copyAbsent').onclick=copyAbsentList;$('#exportAbsent').onclick=exportAbsentCsv;
+  $('#sharePresent').onclick=sharePresentList;$('#copyPresent').onclick=copyPresentList;$('#shareAbsent').onclick=shareAbsentList;$('#copyAbsent').onclick=copyAbsentList;$('#exportAbsent').onclick=exportAbsentCsv;
   $('#statsDate').value=$('#attendanceDate').value;$('#statsService').value='성결예배';$('#careDate').value=$('#attendanceDate').value;$('#careService').value='성결예배';$('#refreshCare').onclick=loadCareManagement;$('#shareCare').onclick=shareCareList;$('#copyCare').onclick=copyCareList;$('#refreshStats').onclick=loadAttendanceStats;$('#statsService').onchange=loadAttendanceStats;$('#statsDate').onchange=loadAttendanceStats;
   $('#homeAttendanceService').onchange=loadHomeMonthlyAttendance;$('#refreshHomeAttendance').onclick=loadHomeMonthlyAttendance;loadHomeMonthlyAttendance();
   $('#attendanceGoal').value=getGoal();$('#attendanceGoal').onchange=e=>{setGoal(e.target.value);updateAttendanceGoal();loadHomeMonthlyAttendance()};updateAttendanceGoal();
