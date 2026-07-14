@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9e1b32">
 <meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System</title>
+<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v7.0 Final Stable</small></title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -134,7 +134,6 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 .month-col.goal-col .month-bar{background:linear-gradient(180deg,#b88319,#7d5709)}
 .month-col.goal-col .month-label{font-weight:800;color:#7d5709}
 
-.excel-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .notice.important{border-left:5px solid var(--red);background:#fff6f7}
 .notice-badge,.event-badge{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;margin-right:6px}
 .notice-badge{background:#f7e6ea;color:var(--red)}
@@ -142,14 +141,21 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 .event-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:10px;box-shadow:var(--shadow)}
 .event-card h4{margin:5px 0;color:var(--navy)}
 .event-card p{margin:4px 0;color:var(--muted);font-size:13px;line-height:1.55}
-
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img src="logo.png" alt="구세군 로고"><div><h1>Gunpo Eunhye Corps<br>Family Management System <small style='font-size:14px'>v6.2</small></h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img src="logo.png" alt="구세군 로고"><div><h1>Gunpo Eunhye Corps<br>Family Management System <small style='font-size:14px'>v6.2.1</small></h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section id="home" class="page active">
+<div class="easy-panel">
+  <h3>✅ v7.0 정식 운영 버전</h3>
+  <p class="simple-help" style="margin:0">
+    배포 ZIP에는 테스트 출석 파일이 포함되지 않습니다.
+    실제 출석 기록은 GitHub 저장소의 <b>attendance-날짜-예배.csv</b> 파일만 사용합니다.
+  </p>
+</div>
+
 <div id="installBanner" class="install-banner">
   <b>📱 앱처럼 설치할 수 있습니다.</b>
   <p class="simple-help" style="margin:5px 0 8px">홈 화면에 추가하면 일반 앱처럼 바로 실행할 수 있습니다.</p>
@@ -166,7 +172,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 
 
 
-<div class="hero"><h2>가족으로 연결되고, 믿음으로 함께하는 공동체</h2><p>가족 단위 명단, 개인 검색, 소속과 생일 통계를 한곳에서 확인합니다.</p></div>
+<div class="hero"><h2>가족으로 연결되고, 믿음으로 함께하는 공동체</h2><p>가족 명단, 예배 출석, 돌봄, 생일, 공지와 교회 일정을 한곳에서 확인합니다.</p></div>
 <div class="kpis"><div class="kpi"><span>총 가정</span><b id="familyKpi">0</b></div><div class="kpi"><span>총 교인</span><b id="memberKpi">0</b></div><div class="kpi"><span>평균 가족원</span><b id="avgKpi">0</b></div><div class="kpi"><span>소속 모임</span><b id="groupKpi">0</b></div></div>
 <div class="grid2"><div class="card"><h3>📢 최근 공지</h3><div id="homeNotices"></div></div><div class="card"><h3>📊 가족 규모 현황</h3><div id="familySizeChart" class="chart"></div></div></div>
 
@@ -204,7 +210,6 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
   <h3>📅 다가오는 교회 일정</h3>
   <div id="homeEvents"></div>
 </div>
-
 <div class="card" style="margin-top:16px"><h3>🎂 생일 알림</h3><div id="solarBirthdayHome"></div></div>
 
 <div class="easy-panel">
@@ -243,7 +248,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <label>기준일 <input id="statsDate" type="date"></label>
 <button id="refreshStats" class="action-btn secondary">출석 통계 새로고침</button>
 </div>
-<div id="statsLoadStatus" class="remote-status">GitHub에 올린 날짜·예배별 CSV를 기준으로 최근 12회 출석을 분석합니다.</div>
+<div id="statsLoadStatus" class="remote-status">GitHub에 보관된 실제 날짜·예배별 출석 CSV를 기준으로 최근 출석을 분석합니다.</div>
 <div class="stats-kpis">
 <div class="stats-kpi"><span>이번 회차 참석</span><b id="statsCurrent">-</b></div>
 <div class="stats-kpi"><span>전회 대비</span><b id="statsPrev">-</b></div>
@@ -336,19 +341,8 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </div>
 </section>
 
-<section id="noticePage" class="page"><h2 class="section-title">공지사항</h2>
-<div class="card">
-  <div class="excel-toolbar"><b>📄 공지사항.xlsx 연동</b><button id="refreshNotices" class="action-btn secondary">새로고침</button></div>
-  <div id="noticeExcelStatus" class="remote-status">GitHub의 공지사항.xlsx 파일을 불러옵니다.</div>
-  <div id="allNotices"></div>
-</div></section>
-<section id="eventsPage" class="page"><h2 class="section-title">교회 일정</h2>
-<div class="card">
-  <div class="excel-toolbar"><b>📄 교회일정.xlsx 연동</b><button id="refreshEvents" class="action-btn secondary">새로고침</button></div>
-  <div id="eventExcelStatus" class="remote-status">GitHub의 교회일정.xlsx 파일을 불러옵니다.</div>
-</div>
-<div id="events" class="schedule" style="margin-top:12px"></div>
-</section>
+<section id="noticePage" class="page"><h2 class="section-title">공지사항</h2><div class="card"><div id="allNotices"></div></div></section>
+<section id="eventsPage" class="page"><h2 class="section-title">교회 일정</h2><div id="events" class="schedule"></div></section>
 <section id="morePage" class="page"><h2 class="section-title">이용 안내</h2><div class="info"><b>📱 앱처럼 설치</b><br>안드로이드 Chrome: ⋮ → 앱 설치 또는 홈 화면에 추가<br>아이폰 Safari: 공유 □↑ → 홈 화면에 추가<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><b>🔄 데이터 업데이트</b><br>명단이 변경되면 새 ZIP을 Netlify에 다시 업로드하면 같은 주소에서 최신 자료가 표시됩니다.<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><b>🔐 개인정보 보호</b><br>교회 내부에서만 사용하고 외부 전송이나 공개 게시를 삼가 주세요.</div></section>
 </main>
 <nav class="bottom"><div class="nav" style="grid-template-columns:repeat(9,1fr)">
@@ -364,7 +358,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </div>
 <script src="data.js"></script>
 <script src="service-data.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="office-data.js"></script>
 <script>
 const D=window.APP_DATA,$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -372,115 +366,15 @@ const mask=p=>p?p.replace(/(\d{3})-(\d{3,4})-(\d{4})/,'$1-$2-****'):'미기재';
 const allGroups=Object.keys(D.stats.groups).sort((a,b)=>a.localeCompare(b,'ko'));
 const allPositions=Object.keys(D.stats.positions).filter(x=>x!=='미기재').sort((a,b)=>a.localeCompare(b,'ko'));
 function chart(el,obj,limit=30){const a=Object.entries(obj).sort((x,y)=>y[1]-x[1]).slice(0,limit),m=Math.max(1,...a.map(x=>x[1]));el.innerHTML=a.map(([k,v])=>`<div class="barrow"><span>${esc(k)}</span><div class="track"><div class="fill" style="width:${v/m*100}%"></div></div><b>${v}</b></div>`).join('')}
-let NOTICE_DATA=(D.notices||[]).map(n=>({
-  start:n.date||'',end:n.date||'',category:'공지',title:n.title||'',body:n.body||'',important:'N'
-}));
-let EVENT_DATA=(D.events||[]).map(e=>({
-  date:e.date||'',time:'',category:'행사',title:e.title||'',location:'',owner:'',note:e.detail||''
-}));
+function noticeHtml(){return D.notices.map(n=>`<article class="notice"><time>${esc(n.date)}</time><strong>${esc(n.title)}</strong><p>${esc(n.body)}</p></article>`).join('')}
+function personHtml(m){const tg=[m.group1,m.group2,m.group3,m.group4].filter(Boolean).map(g=>`<span class="tag">${esc(g)}</span>`).join('');return `<div class="person"><div class="avatar">${esc(m.name.slice(0,1))}</div><div><h5>${esc(m.name)}</h5><div class="meta">${esc(m.position||'직분 미기재')} · ${esc(m.birthday||'생일 미기재')}<br><span class="phoneText">${esc(mask(m.phone))}</span>${m.note?`<br>비고: ${esc(m.note)}`:''}</div><div class="tags">${tg}</div></div><button class="phone" data-phone="${esc(m.phone)}">연락처</button></div>`}
+function bindPhones(root){root.querySelectorAll('.phone').forEach(b=>b.onclick=()=>{const p=b.dataset.phone;if(!p){alert('등록된 연락처가 없습니다.');return}const t=b.closest('.person').querySelector('.phoneText'),show=b.textContent==='연락처';t.textContent=show?p:mask(p);b.textContent=show?'가리기':'연락처'})}
+function renderFamilies(){const q=$('#familySearch').value.trim().toLowerCase(),g=$('#familyGroup').value,s=$('#familySize').value;const arr=D.families.filter(f=>{const hay=(f.label+' '+f.code+' '+f.members.map(m=>[m.name,m.position,m.group1,m.group2,m.group3,m.group4].join(' ')).join(' ')).toLowerCase();const gm=!g||f.groups.includes(g);const sm=!s||(s==='4'?f.size>=4:f.size===Number(s));return(!q||hay.includes(q))&&gm&&sm});$('#familyCount').textContent=`검색 결과 ${arr.length}가정`;const root=$('#families');if(!arr.length){root.innerHTML='<div class="empty">검색 결과가 없습니다.</div>';return}root.innerHTML=arr.map(f=>`<article class="family"><div class="family-head"><div class="family-icon">👨‍👩‍👧</div><div class="family-title"><h4>${esc(f.label)}</h4><small>가족코드 ${esc(f.code)} · ${f.size}명${f.groups.length?' · '+esc(f.groups.join(', ')):''}</small></div><div class="chev">⌄</div></div><div class="family-body">${f.members.map(personHtml).join('')}</div></article>`).join('');root.querySelectorAll('.family-head').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));bindPhones(root)}
+function renderMembers(){const q=$('#memberSearch').value.trim().toLowerCase(),p=$('#positionFilter').value,g=$('#memberGroup').value;const arr=D.members.filter(m=>{const hay=[m.name,m.family,m.position,m.group1,m.group2,m.group3,m.group4,m.birthday,m.note].join(' ').toLowerCase();return(!q||hay.includes(q))&&(!p||m.position===p)&&(!g||[m.group1,m.group2,m.group3,m.group4].includes(g))}).sort((a,b)=>a.name.localeCompare(b.name,'ko'));$('#memberCount').textContent=`검색 결과 ${arr.length}명`;$('#memberGrid').innerHTML=arr.length?arr.map(m=>`<article class="member-card"><div class="avatar">${esc(m.name.slice(0,1))}</div><div><h4>${esc(m.name)}</h4><div class="meta">${esc(m.position||'직분 미기재')} · 가족코드 ${esc(m.family||'-')}<br>${esc(m.birthday||'생일 미기재')}</div><div class="tags">${[m.group1,m.group2,m.group3,m.group4].filter(Boolean).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div></article>`).join(''):'<div class="empty">검색 결과가 없습니다.</div>'}
 
-function todayISO(){return isoDate(new Date())}
-function normalizeExcelDate(value){
-  if(value instanceof Date&&!isNaN(value)){
-    return `${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}`;
-  }
-  if(typeof value==='number'){
-    const d=new Date(Date.UTC(1899,11,30)+value*86400000);
-    return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
-  }
-  const s=String(value||'').trim();
-  let m=s.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
-  if(m)return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
-  return s;
-}
-function formatKoreanDate(iso){
-  const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m?`${Number(m[2])}월 ${Number(m[3])}일`:String(iso||'');
-}
-function activeNotices(){
-  const today=todayISO();
-  return NOTICE_DATA.filter(n=>(!n.start||n.start<=today)&&(!n.end||n.end>=today))
-    .sort((a,b)=>(b.important==='Y')-(a.important==='Y')||String(a.start).localeCompare(String(b.start)));
-}
-function upcomingEvents(){
-  const today=todayISO();
-  return EVENT_DATA.filter(e=>!e.date||e.date>=today)
-    .sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time)));
-}
-function noticeItemHtml(n){
-  const period=n.start&&n.end&&n.start!==n.end?`${formatKoreanDate(n.start)} ~ ${formatKoreanDate(n.end)}`:formatKoreanDate(n.start||n.end);
-  return `<article class="notice ${n.important==='Y'?'important':''}">
-    <time>${esc(period)}</time>
-    <strong>${n.important==='Y'?'<span class="notice-badge">중요</span>':''}${esc(n.title)}</strong>
-    <p>${esc(n.body)}</p>
-  </article>`;
-}
-function noticeHtml(limit=null){
-  const arr=activeNotices();
-  const data=limit?arr.slice(0,limit):arr;
-  return data.length?data.map(noticeItemHtml).join(''):'<div class="empty">현재 표시할 공지사항이 없습니다.</div>';
-}
-function eventItemHtml(e){
-  return `<article class="event-card">
-    <span class="event-badge">${esc(e.category||'일정')}</span>
-    <time>${esc(formatKoreanDate(e.date))}${e.time?' · '+esc(e.time):''}</time>
-    <h4>${esc(e.title)}</h4>
-    <p>${e.location?'장소: '+esc(e.location)+'<br>':''}${e.owner?'담당: '+esc(e.owner)+'<br>':''}${esc(e.note||'')}</p>
-  </article>`;
-}
-function renderNoticeEventData(){
-  $('#homeNotices').innerHTML=noticeHtml(3);
-  $('#allNotices').innerHTML=noticeHtml();
-  const events=upcomingEvents();
-  $('#homeEvents').innerHTML=events.length?events.slice(0,5).map(eventItemHtml).join(''):'<div class="empty">다가오는 일정이 없습니다.</div>';
-  $('#events').innerHTML=events.length?events.map(eventItemHtml).join(''):'<div class="empty">등록된 교회 일정이 없습니다.</div>';
-}
-async function readExcelRows(filename,sheetName){
-  if(typeof XLSX==='undefined')throw new Error('엑셀 읽기 모듈을 불러오지 못했습니다.');
-  const response=await fetch(`./${filename}?v=${Date.now()}`,{cache:'no-store'});
-  if(!response.ok)throw new Error(`${filename} 파일을 찾지 못했습니다.`);
-  const buffer=await response.arrayBuffer();
-  const book=XLSX.read(buffer,{type:'array',cellDates:true});
-  const sheet=book.Sheets[sheetName]||book.Sheets[book.SheetNames[0]];
-  return XLSX.utils.sheet_to_json(sheet,{defval:'',raw:true,range:3});
-}
-async function loadNoticeExcel(){
-  const status=$('#noticeExcelStatus');
-  try{
-    status.className='remote-status';status.textContent='공지사항.xlsx를 불러오는 중입니다...';
-    const rows=await readExcelRows('공지사항.xlsx','공지사항');
-    NOTICE_DATA=rows.filter(r=>r['제목']).map(r=>({
-      start:normalizeExcelDate(r['시작일']),end:normalizeExcelDate(r['종료일']),
-      category:String(r['구분']||'공지').trim(),title:String(r['제목']||'').trim(),
-      body:String(r['내용']||'').trim(),important:String(r['중요']||'N').trim().toUpperCase()
-    }));
-    status.className='remote-status ok';status.textContent=`공지사항.xlsx에서 ${NOTICE_DATA.length}건을 불러왔습니다. 현재 기간에 해당하는 공지만 표시합니다.`;
-    renderNoticeEventData();
-  }catch(e){
-    status.className='remote-status warn';status.textContent=`${e.message} 기존 기본 공지를 표시합니다.`;
-    renderNoticeEventData();
-  }
-}
-async function loadEventExcel(){
-  const status=$('#eventExcelStatus');
-  try{
-    status.className='remote-status';status.textContent='교회일정.xlsx를 불러오는 중입니다...';
-    const rows=await readExcelRows('교회일정.xlsx','교회일정');
-    EVENT_DATA=rows.filter(r=>r['행사명']).map(r=>({
-      date:normalizeExcelDate(r['날짜']),time:String(r['시간']||'').trim(),
-      category:String(r['구분']||'일정').trim(),title:String(r['행사명']||'').trim(),
-      location:String(r['장소']||'').trim(),owner:String(r['담당']||'').trim(),
-      note:String(r['비고']||'').trim()
-    }));
-    status.className='remote-status ok';status.textContent=`교회일정.xlsx에서 ${EVENT_DATA.length}건을 불러왔습니다. 오늘 이후 일정만 표시합니다.`;
-    renderNoticeEventData();
-  }catch(e){
-    status.className='remote-status warn';status.textContent=`${e.message} 기존 기본 일정을 표시합니다.`;
-    renderNoticeEventData();
-  }
-}
-async function loadOfficeExcelFiles(){
-  await Promise.all([loadNoticeExcel(),loadEventExcel()]);
+function birthdayInfo(text){
+  const b=parseSolarBirthday(text);
+  return b?{month:b.month,day:b.day,label:String(text||'')}:null;
 }
 function renderBirthdayList(){
   const month=Number($('#birthdayMonth').value);
@@ -810,7 +704,7 @@ function occurrenceDates(base,service,count=12){
   const arr=[];for(let i=0;i<count;i++){arr.push(isoDate(d));d.setDate(d.getDate()-7)}return arr;
 }
 async function fetchAttendanceCount(date,service){
-  if(date>todayISO())return null;
+  if(date>appTodayISO())return null;
   const key='gunpoAttendance:'+date+':'+service;
   try{const local=JSON.parse(localStorage.getItem(key)||'{}');if(Object.keys(local).length)return Object.values(local).filter(x=>x==='present'||x==='online').length}catch(e){}
   try{const r=await fetch(`./attendance-${date}-${safeServiceName(service)}.csv?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;const o=parseAttendanceCsvText(await r.text());return Object.values(o).filter(x=>x==='present'||x==='online').length}catch(e){return null}
@@ -997,6 +891,44 @@ function jumpToPage(page){
   if(page==='statsPage')loadAttendanceStats();if(page==='carePage')loadCareManagement();scrollTo(0,0);
 }
 
+
+const NOTICE_DATA=window.NOTICE_DATA||[];
+const EVENT_DATA=window.EVENT_DATA||[];
+function appTodayISO(){return isoDate(new Date())}
+function appFormatDate(iso){
+  const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?`${Number(m[2])}월 ${Number(m[3])}일`:String(iso||'');
+}
+function activeNoticeData(){
+  const today=appTodayISO();
+  return NOTICE_DATA.filter(n=>(!n.start||n.start<=today)&&(!n.end||n.end>=today))
+    .sort((a,b)=>(b.important==='Y')-(a.important==='Y')||String(a.start).localeCompare(String(b.start)));
+}
+function upcomingEventData(){
+  const today=appTodayISO();
+  return EVENT_DATA.filter(e=>!e.date||e.date>=today)
+    .sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time)));
+}
+function appNoticeHtml(limit){
+  const arr=activeNoticeData();
+  const data=limit?arr.slice(0,limit):arr;
+  return data.length?data.map(n=>{
+    const period=n.start&&n.end&&n.start!==n.end?`${appFormatDate(n.start)} ~ ${appFormatDate(n.end)}`:appFormatDate(n.start||n.end);
+    return `<article class="notice ${n.important==='Y'?'important':''}"><time>${esc(period)}</time><strong>${n.important==='Y'?'<span class="notice-badge">중요</span>':''}${esc(n.title)}</strong><p>${esc(n.body)}</p></article>`;
+  }).join(''):'<div class="empty">현재 표시할 공지사항이 없습니다.</div>';
+}
+function appEventHtml(e){
+  return `<article class="event-card"><span class="event-badge">${esc(e.category||'일정')}</span><time>${esc(appFormatDate(e.date))}${e.time?' · '+esc(e.time):''}</time><h4>${esc(e.title)}</h4><p>${e.location?'장소: '+esc(e.location)+'<br>':''}${e.owner?'담당: '+esc(e.owner)+'<br>':''}${esc(e.note||'')}</p></article>`;
+}
+function renderOfficeData(){
+  $('#homeNotices').innerHTML=appNoticeHtml(3);
+  $('#allNotices').innerHTML=appNoticeHtml();
+  const events=upcomingEventData();
+  const home=$('#homeEvents');
+  if(home)home.innerHTML=events.length?events.slice(0,5).map(appEventHtml).join(''):'<div class="empty">다가오는 일정이 없습니다.</div>';
+  $('#events').innerHTML=events.length?events.map(appEventHtml).join(''):'<div class="empty">등록된 교회 일정이 없습니다.</div>';
+}
+
 function init(){
 applyLargeText();
 document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>jumpToPage(b.dataset.jump));
@@ -1006,8 +938,7 @@ $('#restoreAllInput').onchange=e=>{if(e.target.files[0])restoreAllData(e.target.
 $('#toggleLargeText').onclick=toggleLargeText;
 $('#resetLocalData').onclick=resetLocalRecords;
 $('#installPwaBtn').onclick=installPwa;
-$('#refreshNotices').onclick=loadNoticeExcel;$('#refreshEvents').onclick=loadEventExcel;loadOfficeExcelFiles();
-const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;renderNoticeEventData();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
+const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;renderOfficeData();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
   for(let i=1;i<=12;i++)$('#birthdayMonth').insertAdjacentHTML('beforeend',`<option value="${i}">${i}월</option>`);
   $('#birthdayMonth').value=String(new Date().getMonth()+1);
   $('#birthdayMonth').addEventListener('change',renderBirthdayList);
@@ -1027,7 +958,7 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   $('#homeAttendanceService').onchange=loadHomeMonthlyAttendance;$('#refreshHomeAttendance').onclick=loadHomeMonthlyAttendance;loadHomeMonthlyAttendance();
   $('#attendanceGoal').value=getGoal();$('#attendanceGoal').onchange=e=>{setGoal(e.target.value);updateAttendanceGoal();loadHomeMonthlyAttendance()};updateAttendanceGoal();
 
-  renderNoticeEventData();renderFamilies();renderMembers();['familySearch','familyGroup','familySize'].forEach(id=>$('#'+id).addEventListener(id==='familySearch'?'input':'change',renderFamilies));['memberSearch','positionFilter','memberGroup'].forEach(id=>$('#'+id).addEventListener(id==='memberSearch'?'input':'change',renderMembers));document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav button').forEach(n=>n.classList.remove('active'));$('#'+b.dataset.page).classList.add('active');b.classList.add('active');if(b.dataset.page==='statsPage')loadAttendanceStats();if(b.dataset.page==='carePage')loadCareManagement();scrollTo(0,0)});if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')}
+  renderOfficeData();renderFamilies();renderMembers();['familySearch','familyGroup','familySize'].forEach(id=>$('#'+id).addEventListener(id==='familySearch'?'input':'change',renderFamilies));['memberSearch','positionFilter','memberGroup'].forEach(id=>$('#'+id).addEventListener(id==='memberSearch'?'input':'change',renderMembers));document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav button').forEach(n=>n.classList.remove('active'));$('#'+b.dataset.page).classList.add('active');b.classList.add('active');if(b.dataset.page==='statsPage')loadAttendanceStats();if(b.dataset.page==='carePage')loadCareManagement();scrollTo(0,0)});if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')}
 init();
 </script>
 </body></html>

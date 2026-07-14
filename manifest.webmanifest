@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v6.2",
+  "name": "Gunpo Eunhye Corps Family Management System v7.0",
   "short_name": "Gunpo Eunhye",
-  "description": "공지사항과 교회일정 엑셀 자동 연동, 미래 출석자료 제외, 무료 GitHub 운영",
+  "description": "정식 운영용 안정화 버전: 가족 명단, 출석, 통계, 돌봄, 공지, 교회 일정",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
