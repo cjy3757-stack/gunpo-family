@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v7.2.1",
+  "name": "Gunpo Eunhye Corps Family Management System v7.3",
   "short_name": "Gunpo Eunhye",
-  "description": "운영 배너 제거 및 메뉴 먹통 문제 수정",
+  "description": "올해 출석목표 60명, 모바일 월별 그래프 현재월까지 표시",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

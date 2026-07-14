@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9e1b32">
 <meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v7.2.1</small></title>
+<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v7.3</small></title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -141,6 +141,22 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 .event-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:10px;box-shadow:var(--shadow)}
 .event-card h4{margin:5px 0;color:var(--navy)}
 .event-card p{margin:4px 0;color:var(--muted);font-size:13px;line-height:1.55}
+
+.monthly-chart.compact{gap:5px;overflow-x:hidden}
+.monthly-chart.compact .month-col{min-width:0;flex:1}
+.monthly-chart.compact .month-col.goal-col{min-width:54px;flex:.9}
+.monthly-chart.compact .month-bar{width:78%;min-width:14px}
+.monthly-chart.compact .month-label{font-size:10px}
+.monthly-chart.compact .month-bar span{font-size:10px}
+.month-col.current-month .month-bar{outline:3px solid rgba(142,27,51,.18)}
+.month-col.current-month .month-label{font-weight:800;color:var(--red)}
+@media(max-width:520px){
+  .monthly-chart.compact{gap:3px;padding-left:2px;padding-right:2px}
+  .monthly-chart.compact .month-col.goal-col{min-width:48px}
+  .monthly-chart.compact .month-label{font-size:9px}
+  .monthly-chart.compact .month-bar span{font-size:9px}
+}
+
 </style>
 </head>
 <body>
@@ -194,9 +210,9 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
     </label>
     <button id="refreshHomeAttendance" class="action-btn secondary">그래프 새로고침</button>
   </div>
-  <div id="homeAttendanceStatus" class="remote-status">올해 1월부터 12월까지 월평균 출석 인원과 올해 출석목표를 함께 표시합니다.</div>
+  <div id="homeAttendanceStatus" class="remote-status">올해 1월부터 현재 월까지 월평균 출석 인원과 올해 출석목표를 함께 표시합니다.</div>
   <div id="homeMonthlyAttendanceChart" class="monthly-chart"></div>
-  <p class="home-chart-note">※ 1월부터 12월까지 월평균 참석 인원을 표시하며, 맨 오른쪽 목표 막대와 비교할 수 있습니다. 참석 인원은 출석과 온라인을 합산합니다.</p>
+  <p class="home-chart-note">※ 1월부터 현재 월까지만 표시하고, 맨 오른쪽 목표 막대와 비교합니다. 현재 월은 강조 표시됩니다.</p>
 </div>
 
 
@@ -724,8 +740,8 @@ function monthKey(date){
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
 }
 function currentYearMonths(){
-  const year=new Date().getFullYear(),arr=[];
-  for(let month=1;month<=12;month++)arr.push({key:`${year}-${String(month).padStart(2,'0')}`,label:`${month}월`,year,month});
+  const now=new Date(),year=now.getFullYear(),currentMonth=now.getMonth()+1,arr=[];
+  for(let month=1;month<=currentMonth;month++)arr.push({key:`${year}-${String(month).padStart(2,'0')}`,label:`${month}월`,year,month,current:month===currentMonth});
   return arr;
 }
 function serviceDatesInMonth(year,month,service){
@@ -739,9 +755,10 @@ function serviceDatesInMonth(year,month,service){
 async function loadHomeMonthlyAttendance(){
   const service=$('#homeAttendanceService').value;
   const status=$('#homeAttendanceStatus'),root=$('#homeMonthlyAttendanceChart');
-  const year=new Date().getFullYear(),goal=getGoal();
+  const year=new Date().getFullYear(),goal=getGoal(),currentMonth=new Date().getMonth()+1;
   status.className='remote-status';
   status.textContent=`${year}년 ${service} 월별 출석 자료를 불러오는 중입니다...`;
+  root.classList.add('compact');
   root.innerHTML='';
   const months=currentYearMonths(),result=[];
   for(const item of months){
@@ -757,19 +774,19 @@ async function loadHomeMonthlyAttendance(){
   root.innerHTML=result.map(x=>{
     const height=x.avg===null?3:Math.max(8,x.avg/max*100);
     const value=x.avg===null?'-':x.avg.toFixed(1);
-    return `<div class="month-col"><div class="month-bar-wrap"><div class="month-bar" style="height:${height}%;opacity:${x.avg===null?.18:1}"><span>${value}</span></div></div><div class="month-label">${x.label}</div></div>`;
+    return `<div class="month-col ${x.current?'current-month':''}"><div class="month-bar-wrap"><div class="month-bar" style="height:${height}%;opacity:${x.avg===null?.18:1}"><span>${value}</span></div></div><div class="month-label">${x.label}</div></div>`;
   }).join('')+`<div class="month-col goal-col"><div class="month-bar-wrap"><div class="month-bar" style="height:${Math.max(8,goal/max*100)}%"><span>${goal}</span></div></div><div class="month-label">올해 목표</div></div>`;
   if(!available.length){
     status.className='remote-status warn';
-    status.textContent=`${year}년 출석 CSV가 아직 없습니다. 목표 ${goal}명 막대만 표시합니다.`;
+    status.textContent=`${year}년 출석 CSV가 아직 없습니다. 목표 ${goal}명만 표시합니다.`;
   }else{
     status.className='remote-status ok';
-    status.textContent=`${year}년 ${service} 월별 출석 ${available.length}개월과 올해 목표 ${goal}명을 비교합니다.`;
+    status.textContent=`${year}년 1월부터 ${currentMonth}월까지의 ${service} 월평균 출석과 목표 ${goal}명을 비교합니다.`;
   }
 }
 
 
-function getGoal(){return Number(localStorage.getItem('gunpoAttendanceGoal')||80)}
+function getGoal(){return Number(localStorage.getItem('gunpoAttendanceGoal')||60)}
 function setGoal(value){localStorage.setItem('gunpoAttendanceGoal',String(value))}
 async function updateAttendanceGoal(){
   const goal=getGoal(),dates=occurrenceDates(isoDate(new Date()),'성결예배',1);
@@ -860,7 +877,7 @@ function allAttendanceLocalStorage(){
   return data;
 }
 function backupAllData(){
-  const payload={version:'6.0',createdAt:new Date().toISOString(),attendance:allAttendanceLocalStorage(),goal:localStorage.getItem('gunpoAttendanceGoal')||'80',largeText:localStorage.getItem('gunpoLargeText')||'false'};
+  const payload={version:'6.0',createdAt:new Date().toISOString(),attendance:allAttendanceLocalStorage(),goal:localStorage.getItem('gunpoAttendanceGoal')||'60',largeText:localStorage.getItem('gunpoLargeText')||'false'};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download=`gunpo-eunhye-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
