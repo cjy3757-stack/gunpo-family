@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9e1b32">
 <meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v7.2</small></title>
+<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v7.2.1</small></title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -149,6 +149,25 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <main>
 <section id="home" class="page active">
 
+
+<div id="installBanner" class="install-banner">
+  <b>📱 앱처럼 설치할 수 있습니다.</b>
+  <p class="simple-help" style="margin:5px 0 8px">홈 화면에 추가하면 일반 앱처럼 바로 실행할 수 있습니다.</p>
+  <button id="installPwaBtn" class="action-btn">앱 설치</button>
+</div>
+<div class="easy-panel">
+  <h3>⚡ 빠른 실행</h3>
+  <div class="quick-actions">
+    <button class="primary" data-jump="attendancePage">✅ 출석 체크</button>
+    <button data-jump="servicePage">🙏 봉사 일정</button>
+    <button data-jump="carePage">📞 돌봄 관리</button>
+  </div>
+</div>
+
+
+
+<div class="hero"><h2>가족으로 연결되고, 믿음으로 함께하는 공동체</h2><p>가족 명단, 예배 출석, 돌봄, 생일, 공지와 교회 일정을 한곳에서 확인합니다.</p></div>
+<div class="kpis"><div class="kpi"><span>총 가정</span><b id="familyKpi">0</b></div><div class="kpi"><span>총 교인</span><b id="memberKpi">0</b></div><div class="kpi"><span>평균 가족원</span><b id="avgKpi">0</b></div><div class="kpi"><span>소속 모임</span><b id="groupKpi">0</b></div></div>
 <div class="grid2"><div class="card"><h3>📢 최근 공지</h3><div id="homeNotices"></div></div><div class="card"><h3>📊 가족 규모 현황</h3><div id="familySizeChart" class="chart"></div></div></div>
 
 
@@ -904,15 +923,19 @@ function renderOfficeData(){
   $('#events').innerHTML=events.length?events.map(appEventHtml).join(''):'<div class="empty">등록된 교회 일정이 없습니다.</div>';
 }
 
+
+function bindClick(selector,handler){const el=$(selector);if(el)el.onclick=handler}
+function bindChange(selector,handler){const el=$(selector);if(el)el.onchange=handler}
+
 function init(){
 applyLargeText();
 document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>jumpToPage(b.dataset.jump));
-$('#backupAll').onclick=backupAllData;
-$('#restoreAllBtn').onclick=()=>$('#restoreAllInput').click();
-$('#restoreAllInput').onchange=e=>{if(e.target.files[0])restoreAllData(e.target.files[0])};
-$('#toggleLargeText').onclick=toggleLargeText;
-$('#resetLocalData').onclick=resetLocalRecords;
-$('#installPwaBtn').onclick=installPwa;
+bindClick('#backupAll',backupAllData);
+bindClick('#restoreAllBtn',()=>$('#restoreAllInput')?.click());
+bindChange('#restoreAllInput',e=>{if(e.target.files[0])restoreAllData(e.target.files[0])});
+bindClick('#toggleLargeText',toggleLargeText);
+bindClick('#resetLocalData',resetLocalRecords);
+bindClick('#installPwaBtn',installPwa);
 const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;renderOfficeData();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
   for(let i=1;i<=12;i++)$('#birthdayMonth').insertAdjacentHTML('beforeend',`<option value="${i}">${i}월</option>`);
   $('#birthdayMonth').value=String(new Date().getMonth()+1);

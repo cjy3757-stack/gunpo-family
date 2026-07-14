@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v7.2",
+  "name": "Gunpo Eunhye Corps Family Management System v7.2.1",
   "short_name": "Gunpo Eunhye",
-  "description": "운영 안내 배너를 제거한 정식 배포 버전",
+  "description": "운영 배너 제거 및 메뉴 먹통 문제 수정",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
