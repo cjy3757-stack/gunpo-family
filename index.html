@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9e1b32">
 <meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v7.5</small></title>
+<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v8.0</small></title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -170,6 +170,35 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
     min-height:86px;
   }
 }
+
+.finance-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.finance-kpi{background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:var(--shadow)}
+.finance-kpi span{display:block;color:var(--muted);font-size:12px}
+.finance-kpi b{display:block;font-size:23px;color:var(--navy);margin-top:5px}
+.finance-note{margin:5px 0 0;color:var(--muted);font-size:13px}
+.finance-bars{display:flex;flex-direction:column;gap:12px}
+.finance-bar-row{display:grid;grid-template-columns:118px 1fr 112px;gap:8px;align-items:center;font-size:13px}
+.finance-bar{height:14px;background:#eee8e2;border-radius:99px;overflow:hidden}
+.finance-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--navy),#4b81aa);border-radius:99px}
+.finance-list{display:flex;flex-direction:column;gap:8px}
+.finance-list-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.finance-list-row:last-child{border-bottom:0}
+.finance-list-row b{color:var(--navy)}
+.finance-budget-row{margin:12px 0}
+.finance-budget-head{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.finance-budget-bar{height:12px;background:#eee8e2;border-radius:99px;overflow:hidden;margin-top:6px}
+.finance-budget-bar i{display:block;height:100%;background:linear-gradient(90deg,#9b2840,#d36075);border-radius:99px}
+.finance-warning{margin-top:16px;background:#fff4e5;border:1px solid #ecd39c;border-radius:14px;padding:13px;color:#7a5917;font-size:13px;line-height:1.6}
+.finance-home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.finance-home-grid div{background:#f7f4ef;border-radius:14px;padding:13px}
+.finance-home-grid span{display:block;color:var(--muted);font-size:12px}
+.finance-home-grid b{display:block;color:var(--navy);font-size:18px;margin-top:4px}
+@media(max-width:760px){
+  .finance-kpis{grid-template-columns:repeat(2,1fr)}
+  .finance-bar-row{grid-template-columns:92px 1fr 88px;font-size:11px}
+  .finance-home-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -233,6 +262,16 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
   <h3>📅 다가오는 교회 일정</h3>
   <div id="homeEvents"></div>
 </div>
+
+<div class="card" style="margin-top:16px">
+  <h3>💰 이번 달 재정 요약</h3>
+  <div class="finance-home-grid">
+    <div><span>수입</span><b id="homeFinanceIncome">0원</b></div>
+    <div><span>지출</span><b id="homeFinanceExpense">0원</b></div>
+    <div><span>잔액</span><b id="homeFinanceBalance">0원</b></div>
+  </div>
+</div>
+
 <div class="card" style="margin-top:16px"><h3>🎂 생일 알림</h3><div id="solarBirthdayHome"></div></div>
 
 <div class="easy-panel">
@@ -366,17 +405,66 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </div>
 </section>
 
+
+<section id="financePage" class="page">
+  <h2 class="section-title">재정</h2>
+  <div class="finance-head card">
+    <div>
+      <h3 style="margin:0">💰 <span id="financePeriod"></span> 재정현황</h3>
+      <p class="finance-note">장년부 재정보고서 기준</p>
+    </div>
+  </div>
+
+  <div class="finance-kpis">
+    <div class="finance-kpi"><span>총수입</span><b id="financeIncome">0원</b></div>
+    <div class="finance-kpi"><span>총지출</span><b id="financeExpense">0원</b></div>
+    <div class="finance-kpi"><span>잔액</span><b id="financeBalance">0원</b></div>
+    <div class="finance-kpi"><span>수입 예산대비</span><b id="financeRate">0%</b></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>📈 수입 TOP 5</h3>
+      <div id="financeIncomeBars" class="finance-bars"></div>
+    </div>
+    <div class="card">
+      <h3>📉 지출 TOP 5</h3>
+      <div id="financeExpenseBars" class="finance-bars"></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:16px">
+    <div class="card">
+      <h3>🧾 주요 헌금 내역</h3>
+      <div id="financeIncomeList" class="finance-list"></div>
+    </div>
+    <div class="card">
+      <h3>🧾 주요 지출 내역</h3>
+      <div id="financeExpenseList" class="finance-list"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>🎯 예산 대비 집행률</h3>
+    <div id="financeBudgetRates" class="finance-budget-list"></div>
+  </div>
+
+  <div class="finance-warning">
+    재정 자료는 민감한 정보입니다. 공개 GitHub Pages를 사용하는 경우 열람 범위를 신중히 관리하세요.
+  </div>
+</section>
+
 <section id="noticePage" class="page"><h2 class="section-title">공지사항</h2><div class="card"><div id="allNotices"></div></div></section>
 <section id="eventsPage" class="page"><h2 class="section-title">교회 일정</h2><div id="events" class="schedule"></div></section>
 <section id="morePage" class="page"><h2 class="section-title">이용 안내</h2><div class="info"><b>📱 앱처럼 설치</b><br>안드로이드 Chrome: ⋮ → 앱 설치 또는 홈 화면에 추가<br>아이폰 Safari: 공유 □↑ → 홈 화면에 추가<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><b>🔄 데이터 업데이트</b><br>명단이 변경되면 새 ZIP을 Netlify에 다시 업로드하면 같은 주소에서 최신 자료가 표시됩니다.<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><b>🔐 개인정보 보호</b><br>교회 내부에서만 사용하고 외부 전송이나 공개 게시를 삼가 주세요.</div></section>
 </main>
-<nav class="bottom"><div class="nav" style="grid-template-columns:repeat(9,1fr)">
+<nav class="bottom"><div class="nav" style="grid-template-columns:repeat(10,1fr)">
 <button class="active" data-page="home"><span>🏠</span>홈</button>
 <button data-page="familiesPage"><span>👨‍👩‍👧</span>가족</button>
 <button data-page="membersPage"><span>👤</span>개인</button>
 <button data-page="servicePage"><span>🙏</span>봉사</button>
 <button data-page="attendancePage"><span>✅</span>출석</button>
-<button data-page="statsPage"><span>📊</span>통계</button><button data-page="carePage"><span>📞</span>돌봄</button>
+<button data-page="statsPage"><span>📊</span>통계</button><button data-page="carePage"><span>📞</span>돌봄</button><button data-page="financePage"><span>💰</span>재정</button>
 <button data-page="noticePage"><span>📢</span>공지</button>
 <button data-page="eventsPage"><span>📅</span>일정</button>
 </div></nav>
@@ -384,6 +472,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <script src="data.js"></script>
 <script src="service-data.js"></script>
 <script src="office-data.js"></script>
+<script src="finance-data.js"></script>
 <script>
 const D=window.APP_DATA,$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -952,7 +1041,7 @@ function backupAllData(){
 }
 function restoreAllData(file){
   const reader=new FileReader();
-  reader.onload=()=>{try{const p=JSON.parse(reader.result);Object.entries(p.attendance||{}).forEach(([k,v])=>localStorage.setItem(k,v));if(p.goal!=null)localStorage.setItem('gunpoAttendanceGoal',String(p.goal));if(p.largeText!=null)localStorage.setItem('gunpoLargeText',String(p.largeText));applyLargeText();updateAttendanceGoal();renderAttendance();alert('백업 복원이 완료되었습니다.')}catch(e){alert('올바른 백업 파일이 아닙니다.')}};
+  reader.onload=()=>{try{const p=JSON.parse(reader.result);Object.entries(p.attendance||{}).forEach(([k,v])=>localStorage.setItem(k,v));if(p.goal!=null)localStorage.setItem('gunpoAttendanceGoal',String(p.goal));if(p.largeText!=null)localStorage.setItem('gunpoLargeText',String(p.largeText));applyLargeText();renderFinanceDashboard();updateAttendanceGoal();renderAttendance();alert('백업 복원이 완료되었습니다.')}catch(e){alert('올바른 백업 파일이 아닙니다.')}};
   reader.readAsText(file,'utf-8');
 }
 function applyLargeText(){
@@ -968,7 +1057,7 @@ function resetLocalRecords(){
 function jumpToPage(page){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));
   $('#'+page)?.classList.add('active');document.querySelector(`.bottom button[data-page="${page}"]`)?.classList.add('active');
-  if(page==='statsPage')loadAttendanceStats();if(page==='carePage')loadCareManagement();scrollTo(0,0);
+  if(page==='statsPage')loadAttendanceStats();if(page==='carePage')loadCareManagement();if(page==='financePage')renderFinanceDashboard();scrollTo(0,0);
 }
 
 
@@ -1012,6 +1101,42 @@ function renderOfficeData(){
 
 function bindClick(selector,handler){const el=$(selector);if(el)el.onclick=handler}
 function bindChange(selector,handler){const el=$(selector);if(el)el.onchange=handler}
+
+
+const FDATA=window.FINANCE_DATA||null;
+function money(value){return Number(value||0).toLocaleString('ko-KR')+'원'}
+function renderFinanceBarRows(items,rootId){
+  const root=$('#'+rootId);
+  if(!root)return;
+  const max=Math.max(...items.map(x=>x.amount),1);
+  root.innerHTML=items.map(x=>`<div class="finance-bar-row"><span>${esc(x.name)}</span><div class="finance-bar"><i style="width:${x.amount/max*100}%"></i></div><b>${money(x.amount)}</b></div>`).join('');
+}
+function renderFinanceList(items,rootId,limit=10){
+  const root=$('#'+rootId);
+  if(!root)return;
+  root.innerHTML=items.slice(0,limit).map(x=>`<div class="finance-list-row"><span>${esc(x.name)}</span><b>${money(x.amount)}</b></div>`).join('');
+}
+function renderFinanceDashboard(){
+  if(!FDATA)return;
+  const s=FDATA.summary;
+  $('#financePeriod').textContent=`${FDATA.year}년 ${FDATA.month}월`;
+  $('#financeIncome').textContent=money(s.income);
+  $('#financeExpense').textContent=money(s.expense);
+  $('#financeBalance').textContent=money(s.balance);
+  $('#financeRate').textContent=Number(s.incomeExecutionRate).toFixed(2)+'%';
+  $('#homeFinanceIncome').textContent=money(s.income);
+  $('#homeFinanceExpense').textContent=money(s.expense);
+  $('#homeFinanceBalance').textContent=money(s.balance);
+  renderFinanceBarRows(FDATA.incomeCategories,'financeIncomeBars');
+  renderFinanceBarRows(FDATA.expenseCategories,'financeExpenseBars');
+  renderFinanceList(FDATA.incomeDetails,'financeIncomeList',12);
+  renderFinanceList(FDATA.expenseDetails,'financeExpenseList',16);
+  const combined=[
+    ...FDATA.incomeCategories.map(x=>({...x,type:'수입'})),
+    ...FDATA.expenseCategories.map(x=>({...x,type:'지출'}))
+  ].sort((a,b)=>b.rate-a.rate);
+  $('#financeBudgetRates').innerHTML=combined.map(x=>`<div class="finance-budget-row"><div class="finance-budget-head"><span>${esc(x.type)} · ${esc(x.name)}</span><b>${Number(x.rate).toFixed(2)}%</b></div><div class="finance-budget-bar"><i style="width:${Math.min(Number(x.rate),100)}%"></i></div></div>`).join('');
+}
 
 function init(){
 applyLargeText();

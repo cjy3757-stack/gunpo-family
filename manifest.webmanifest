@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v7.5",
+  "name": "Gunpo Eunhye Corps Family Management System v8.0",
   "short_name": "Gunpo Eunhye",
-  "description": "빠른 실행 버튼 큰 글씨, 개인 메뉴 전화번호 표시 및 바로 전화",
+  "description": "교회 재정 수입·지출 월간 대시보드, 출석·돌봄·공지·일정 통합",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
