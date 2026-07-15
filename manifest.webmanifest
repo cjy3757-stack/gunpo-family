@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v7.4",
+  "name": "Gunpo Eunhye Corps Family Management System v7.5",
   "short_name": "Gunpo Eunhye",
-  "description": "출석자 명단 공유·복사, 불출석자 공유, 모바일 출석관리",
+  "description": "빠른 실행 버튼 큰 글씨, 개인 메뉴 전화번호 표시 및 바로 전화",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
