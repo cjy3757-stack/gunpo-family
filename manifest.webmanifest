@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v8.1",
+  "name": "Gunpo Eunhye Corps Family Management System v8.1.1",
   "short_name": "Gunpo Eunhye",
-  "description": "월별 재정 선택, 수입·지출 예산대비 실적과 집행률 대시보드",
+  "description": "재정 월별 대시보드 메뉴 먹통 오류 수정",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

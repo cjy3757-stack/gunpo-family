@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9e1b32">
 <meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v8.1</small></title>
+<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v8.1.1</small></title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -424,7 +424,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
   <h2 class="section-title">재정</h2>
   <div class="finance-head card">
     <div>
-      <h3 style="margin:0">💰 재정현황</h3>
+      <h3 style="margin:0">💰 <span id="financePeriod">재정현황</span></h3>
       <p class="finance-note">장년부 재정보고서 기준</p>
     </div>
     <label class="finance-month-select">조회 월
@@ -1163,6 +1163,12 @@ function renderFinanceDetailList(items,rootId,limit=12){
   }).join('');
 }
 
+
+function setTextSafe(selector,value){
+  const el=$(selector);
+  if(el)el.textContent=value;
+}
+
 function renderFinanceDashboard(){
   const keys=Object.keys(FINANCE_MONTHS).sort().reverse();
   if(!currentFinanceKey&&keys.length)currentFinanceKey=keys[0];
@@ -1174,21 +1180,22 @@ function renderFinanceDashboard(){
   }
 
   const s=FDATA.summary;
-  $('#financePeriod').textContent=financeMonthLabel(currentFinanceKey);
-  $('#financeIncome').textContent=money(s.income);
-  $('#financeIncomeBudget').textContent=`예산 ${money(s.budget)}`;
-  $('#financeIncomeRate').textContent=`집행률 ${Number(s.incomeExecutionRate).toFixed(2)}%`;
+  const periodEl=$('#financePeriod');
+  if(periodEl)periodEl.textContent=financeMonthLabel(currentFinanceKey)+' 재정현황';
+  setTextSafe('#financeIncome',money(s.income));
+  setTextSafe('#financeIncomeBudget',`예산 ${money(s.budget)}`);
+  setTextSafe('#financeIncomeRate',`집행률 ${Number(s.incomeExecutionRate).toFixed(2)}%`);
 
-  $('#financeExpense').textContent=money(s.expense);
-  $('#financeExpenseBudget').textContent=`예산 ${money(s.budget)}`;
-  $('#financeExpenseRate').textContent=`집행률 ${Number(s.expenseExecutionRate).toFixed(2)}%`;
+  setTextSafe('#financeExpense',money(s.expense));
+  setTextSafe('#financeExpenseBudget',`예산 ${money(s.budget)}`);
+  setTextSafe('#financeExpenseRate',`집행률 ${Number(s.expenseExecutionRate).toFixed(2)}%`);
 
-  $('#financeBalance').textContent=money(s.balance);
-  $('#financeBudget').textContent=money(s.budget);
+  setTextSafe('#financeBalance',money(s.balance));
+  setTextSafe('#financeBudget',money(s.budget));
 
-  $('#homeFinanceIncome').textContent=money(s.income);
-  $('#homeFinanceExpense').textContent=money(s.expense);
-  $('#homeFinanceBalance').textContent=money(s.balance);
+  setTextSafe('#homeFinanceIncome',money(s.income));
+  setTextSafe('#homeFinanceExpense',money(s.expense));
+  setTextSafe('#homeFinanceBalance',money(s.balance));
 
   renderFinanceBarRows(FDATA.incomeCategories,'financeIncomeBars');
   renderFinanceBarRows(FDATA.expenseCategories,'financeExpenseBars');
@@ -1214,8 +1221,12 @@ function renderFinanceDashboard(){
 
 function init(){
 applyLargeText();
-setupFinanceMonthOptions();
-renderFinanceDashboard();
+try{
+  setupFinanceMonthOptions();
+  renderFinanceDashboard();
+}catch(e){
+  console.error('재정 대시보드 초기화 오류:',e);
+}
 document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>jumpToPage(b.dataset.jump));
 bindClick('#backupAll',backupAllData);
 bindClick('#restoreAllBtn',()=>$('#restoreAllInput')?.click());
