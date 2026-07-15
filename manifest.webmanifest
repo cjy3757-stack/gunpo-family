@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v8.1.1",
+  "name": "Gunpo Eunhye Corps Family Management System v8.1.2",
   "short_name": "Gunpo Eunhye",
-  "description": "재정 월별 대시보드 메뉴 먹통 오류 수정",
+  "description": "전체 메뉴를 앱 초기화와 분리하여 먹통 문제를 복구한 안정화 버전",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
