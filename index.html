@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9e1b32">
 <meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v8.2.2</small></title>
+<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v8.2.3</small></title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -1218,6 +1218,70 @@ function renderFinanceDashboard(){
 }
 
 
+
+const ALL_SERVICES=['새벽기도','성결예배','구령예배','수요예배','금요기도회'];
+
+async function loadMonthlyAttendanceCalendar(){
+  const monthEl=$('#attendanceCalendarMonth');
+  const root=$('#attendanceCalendar');
+  const note=$('#attendanceCalendarStatus');
+  if(!monthEl||!root||!note||!monthEl.value)return;
+
+  const [year,mon]=monthEl.value.split('-').map(Number);
+  const days=new Date(year,mon,0).getDate();
+  const firstDay=new Date(year,mon-1,1).getDay();
+
+  note.className='remote-status';
+  note.textContent='월간 전체 예배 출석을 불러오는 중입니다...';
+
+  const records={},summary={};
+  ALL_SERVICES.forEach(service=>summary[service]=0);
+
+  for(let day=1;day<=days;day++){
+    const date=`${year}-${String(mon).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const results=await Promise.all(ALL_SERVICES.map(async service=>({
+      service,
+      count:await fetchAttendanceCount(date,service)
+    })));
+    records[day]=results.filter(x=>x.count!==null&&x.count>0);
+    records[day].forEach(x=>summary[x.service]+=x.count);
+  }
+
+  let output=['일','월','화','수','목','금','토'].map(x=>`<div class="calendar-head">${x}</div>`).join('');
+  for(let i=0;i<firstDay;i++)output+='<div class="calendar-day empty"></div>';
+
+  for(let day=1;day<=days;day++){
+    const items=records[day]||[];
+    const total=items.reduce((sum,item)=>sum+item.count,0);
+    output+=`<div class="calendar-day"><div class="calendar-date">${day}</div>${items.map(item=>`<div class="calendar-service">${item.service} ${item.count}명</div>`).join('')}${total?`<div class="calendar-total">합계 ${total}명</div>`:''}</div>`;
+  }
+
+  root.innerHTML=output;
+
+  const summaryRoot=$('#attendanceMonthlySummary');
+  if(summaryRoot){
+    summaryRoot.innerHTML=ALL_SERVICES.map(service=>`<div><span>${service}</span><b>${summary[service]}명</b></div>`).join('');
+  }
+
+  const total=Object.values(summary).reduce((sum,value)=>sum+value,0);
+  note.className='remote-status ok';
+  note.textContent=`${year}년 ${mon}월 전체 예배 출석 합계 ${total}명입니다.`;
+}
+
+
+function showAppDiagnostic(message){
+  const home=document.getElementById('home');
+  if(!home)return;
+  let box=document.getElementById('appDiagnostic');
+  if(!box){
+    box=document.createElement('div');
+    box.id='appDiagnostic';
+    box.className='remote-status warn';
+    home.insertBefore(box,home.firstChild);
+  }
+  box.textContent='앱 초기화 확인: '+message;
+}
+
 function setupMainNavigation(){
   document.querySelectorAll('.bottom .nav button').forEach(b=>{
     b.onclick=()=>{
@@ -1292,7 +1356,7 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
 try{
   init();
 }catch(e){
-  console.error('앱 초기화 오류:',e);
+  console.error('앱 초기화 오류:',e);showAppDiagnostic(e&&e.message?e.message:String(e));
   setupMainNavigation();
   const home=document.getElementById('home');
   if(home)home.classList.add('active');
