@@ -1,13 +1,14 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#9e1b32">
-<meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v8.2</small></title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#9e1b32" name="theme-color"/>
+<meta content="noindex,nofollow" name="robots"/>
+<title>Gunpo Eunhye Corps Family Management System <small style="font-size:14px">v8.2.1</small></title>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="icon-192.png" rel="icon"/>
 <style>
 :root{--red:#9e1b32;--red2:#c8304a;--navy:#18304a;--ink:#17212b;--muted:#6b7580;--paper:#f7f4ef;--card:#fff;--line:#e6dfd7;--shadow:0 8px 24px rgba(34,29,26,.08)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,"Noto Sans KR",Arial,sans-serif}.app{min-height:100vh;padding-bottom:86px}
@@ -159,13 +160,16 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 
 
 .quick-actions button{
-  font-size:21px !important;
+  font-size:36px !important;
   line-height:1.25;
-  min-height:70px;
-  padding:12px 10px !important;
+  min-height:96px;
+  padding:18px 14px !important;
 }
 @media(max-width:760px){
-  .quick-actions button{font-size:19px !important;min-height:66px}
+  .quick-actions button{
+    font-size:30px !important;
+    min-height:86px;
+  }
 }
 
 .finance-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
@@ -211,14 +215,16 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 .finance-detail-progress i{display:block;height:100%;background:linear-gradient(90deg,var(--navy),#4b81aa);border-radius:99px}
 
 
-.attendance-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.quick-actions button{font-size:21px !important;line-height:1.25;min-height:70px;padding:12px 10px !important}
+@media(max-width:760px){.quick-actions button{font-size:19px !important;min-height:66px}}
+.attendance-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px}
 .calendar-head{text-align:center;font-weight:800;color:var(--navy);font-size:12px;padding:7px}
-.calendar-day{min-height:118px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px;font-size:11px}
+.calendar-day{min-height:112px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px;font-size:11px;overflow:hidden}
 .calendar-day.empty{background:transparent;border:0}
 .calendar-date{font-weight:900;color:var(--navy);margin-bottom:5px}
 .calendar-service{background:#eef2f6;border-radius:7px;padding:4px 5px;margin:3px 0;line-height:1.35}
 .calendar-total{margin-top:5px;font-weight:900;color:var(--red)}
-.monthly-service-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.monthly-service-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}
 .monthly-service-summary div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
 .monthly-service-summary span{display:block;font-size:11px;color:var(--muted)}
 .monthly-service-summary b{display:block;font-size:18px;color:var(--navy);margin-top:4px}
@@ -235,168 +241,141 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 .finance-detail-line span:nth-child(n+2){text-align:right;color:var(--muted)}
 @media(max-width:760px){
  .attendance-calendar{gap:3px}
- .calendar-day{min-height:92px;padding:4px;font-size:9px}
+ .calendar-day{min-height:88px;padding:4px;font-size:9px}
  .calendar-head{font-size:10px;padding:4px}
- .monthly-service-summary{grid-template-columns:repeat(2,1fr)}
+ .monthly-service-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
  .finance-group-head{grid-template-columns:1fr auto}
  .finance-group-head .budget,.finance-group-head .rate{display:none}
  .finance-detail-line{grid-template-columns:1fr auto}
  .finance-detail-line .budget,.finance-detail-line .rate{display:none}
 }
-
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img src="logo.png" alt="구세군 로고"><div><h1>Gunpo Eunhye Corps<br>Family Management System <small style='font-size:14px'>v6.2.1</small></h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>Gunpo Eunhye Corps<br/>Family Management System <small style="font-size:14px">v6.2.1</small></h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
-<section id="home" class="page active">
-
-
-<div id="installBanner" class="install-banner">
-  <b>📱 앱처럼 설치할 수 있습니다.</b>
-  <p class="simple-help" style="margin:5px 0 8px">홈 화면에 추가하면 일반 앱처럼 바로 실행할 수 있습니다.</p>
-  <button id="installPwaBtn" class="action-btn">앱 설치</button>
+<section class="page active" id="home">
+<div class="install-banner" id="installBanner">
+<b>📱 앱처럼 설치할 수 있습니다.</b>
+<p class="simple-help" style="margin:5px 0 8px">홈 화면에 추가하면 일반 앱처럼 바로 실행할 수 있습니다.</p>
+<button class="action-btn" id="installPwaBtn">앱 설치</button>
 </div>
 <div class="easy-panel">
-  <h3>⚡ 빠른 실행</h3>
-  <div class="quick-actions">
-    <button class="primary" data-jump="attendancePage">✅ 출석 체크</button>
-    <button data-jump="servicePage">🙏 예배·봉사 일정</button>
-    <button data-jump="carePage">📞 돌봄 관리</button>
-  </div>
+<h3>⚡ 빠른 실행</h3>
+<div class="quick-actions">
+<button class="primary" data-jump="attendancePage">✅ 출석 체크</button>
+<button data-jump="servicePage">🙏 예배·봉사 일정</button>
+<button data-jump="carePage">📞 돌봄 관리</button>
 </div>
-
-
-
+</div>
 <div class="hero"><h2>가족으로 연결되고, 믿음으로 함께하는 공동체</h2><p>가족 명단, 예배 출석, 돌봄, 생일, 공지와 교회 일정을 한곳에서 확인합니다.</p></div>
 <div class="kpis"><div class="kpi"><span>총 가정</span><b id="familyKpi">0</b></div><div class="kpi"><span>총 교인</span><b id="memberKpi">0</b></div><div class="kpi"><span>평균 가족원</span><b id="avgKpi">0</b></div><div class="kpi"><span>소속 모임</span><b id="groupKpi">0</b></div></div>
 <div class="card" style="margin-top:16px">
-  <h3>📅 다가오는 교회 일정</h3>
-  <div id="homeEvents"></div>
-</div>
-<div class="grid2"><div class="card"><h3>📢 최근 공지</h3><div id="homeNotices"></div></div><div class="card"><h3>📊 가족 규모 현황</h3><div id="familySizeChart" class="chart"></div></div></div>
-
-
+<h3>📅 다가오는 교회 일정</h3>
+<div id="homeEvents"></div>
+</div><div class="grid2"><div class="card"><h3>📢 최근 공지</h3><div id="homeNotices"></div></div><div class="card"><h3>📊 가족 규모 현황</h3><div class="chart" id="familySizeChart"></div></div></div>
 <div class="card goal-card">
-  <div class="goal-head">
-    <div><h3 style="margin:0">🎯 올해 출석 목표</h3><p style="margin:5px 0 0;color:var(--muted);font-size:13px">성결예배 월평균 기준</p></div>
-    <label>목표 <input id="attendanceGoal" type="number" min="1" value="60"> 명</label>
-  </div>
-  <div class="goal-progress"><i id="attendanceGoalBar" style="width:0%"></i></div>
-  <div class="goal-meta"><span id="attendanceGoalCurrent">현재 -명</span><span id="attendanceGoalRate">0%</span></div>
+<div class="goal-head">
+<div><h3 style="margin:0">🎯 올해 출석 목표</h3><p style="margin:5px 0 0;color:var(--muted);font-size:13px">성결예배 월평균 기준</p></div>
+<label>목표 <input id="attendanceGoal" min="1" type="number" value="60"/> 명</label>
 </div>
-
+<div class="goal-progress"><i id="attendanceGoalBar" style="width:0%"></i></div>
+<div class="goal-meta"><span id="attendanceGoalCurrent">현재 -명</span><span id="attendanceGoalRate">0%</span></div>
+</div>
 <div class="card home-attendance-chart">
-  <h3>📊 월별 출석 인원</h3>
-  <div class="home-chart-toolbar">
-    <label>예배
+<h3>📊 월별 출석 인원</h3>
+<div class="home-chart-toolbar">
+<label>예배
       <select id="homeAttendanceService">
-        <option value="새벽기도">새벽기도</option>
-        <option value="성결예배" selected>성결예배</option>
-        <option value="구령예배">구령예배</option>
-        <option value="수요예배">수요예배</option>
-        <option value="금요기도회">금요기도회</option>
-      </select>
-    </label>
-    <button id="refreshHomeAttendance" class="action-btn secondary">그래프 새로고침</button>
-  </div>
-  <div id="homeAttendanceStatus" class="remote-status">올해 1월부터 현재 월까지 월평균 출석 인원과 올해 출석목표를 함께 표시합니다.</div>
-  <div id="homeMonthlyAttendanceChart" class="monthly-chart"></div>
-  <p class="home-chart-note">※ 1월부터 현재 월까지만 표시하고, 맨 오른쪽 목표 막대와 비교합니다. 현재 월은 강조 표시됩니다.</p>
+<option value="새벽기도">새벽기도</option>
+<option selected="" value="성결예배">성결예배</option>
+<option value="구령예배">구령예배</option>
+<option value="수요예배">수요예배</option>
+<option value="금요기도회">금요기도회</option>
+</select>
+</label>
+<button class="action-btn secondary" id="refreshHomeAttendance">그래프 새로고침</button>
+</div>
+<div class="remote-status" id="homeAttendanceStatus">올해 1월부터 현재 월까지 월평균 출석 인원과 올해 출석목표를 함께 표시합니다.</div>
+<div class="monthly-chart" id="homeMonthlyAttendanceChart"></div>
+<p class="home-chart-note">※ 1월부터 현재 월까지만 표시하고, 맨 오른쪽 목표 막대와 비교합니다. 현재 월은 강조 표시됩니다.</p>
 </div>
 
-
-
-
-
-</div>
 
 <div class="card" style="margin-top:16px"><h3>🎂 생일 알림</h3><div id="solarBirthdayHome"></div></div>
-
 <div class="easy-panel">
-  <h3>💾 백업과 복원</h3>
-  <div class="backup-box">
-    <button id="backupAll" class="action-btn">전체 백업 저장</button>
-    <button id="restoreAllBtn" class="action-btn secondary">백업 복원</button>
-    <input id="restoreAllInput" type="file" accept=".json" hidden>
-  </div>
-  <p class="simple-help">이 휴대폰에 저장된 출석 기록과 출석 목표를 한 파일로 보관합니다.</p>
+<h3>💾 백업과 복원</h3>
+<div class="backup-box">
+<button class="action-btn" id="backupAll">전체 백업 저장</button>
+<button class="action-btn secondary" id="restoreAllBtn">백업 복원</button>
+<input accept=".json" hidden="" id="restoreAllInput" type="file"/>
+</div>
+<p class="simple-help">이 휴대폰에 저장된 출석 기록과 출석 목표를 한 파일로 보관합니다.</p>
 </div>
 <div class="easy-panel">
-  <h3>👀 보기 설정</h3>
-  <div class="backup-box">
-    <button id="toggleLargeText" class="action-btn secondary">큰 글씨 켜기</button>
-    <button id="resetLocalData" class="action-btn danger">이 기기 기록 초기화</button>
-  </div>
+<h3>👀 보기 설정</h3>
+<div class="backup-box">
+<button class="action-btn secondary" id="toggleLargeText">큰 글씨 켜기</button>
+<button class="action-btn danger" id="resetLocalData">이 기기 기록 초기화</button>
+</div>
 </div>
 </section>
-
-<section id="familiesPage" class="page"><h2 class="section-title">가족 명단</h2>
-<div class="toolbar"><input id="familySearch" placeholder="가족 대표자 또는 가족 구성원 검색"><select id="familyGroup"><option value="">모든 소속</option></select><select id="familySize"><option value="">모든 가족 규모</option><option value="1">1인 가정</option><option value="2">2인 가정</option><option value="3">3인 가정</option><option value="4">4인 이상</option></select></div>
-<div class="result"><span id="familyCount"></span><span>가족카드를 누르면 구성원이 펼쳐집니다.</span></div><div id="families" class="families"></div></section>
-
-<section id="membersPage" class="page"><h2 class="section-title">개인 검색</h2>
-<div class="toolbar"><input id="memberSearch" placeholder="이름, 직분, 가족코드, 소속 검색"><select id="positionFilter"><option value="">모든 직분</option></select><select id="memberGroup"><option value="">모든 소속</option></select></div>
-<div class="result"><span id="memberCount"></span><span>검색된 교인이 속한 가족도 함께 확인할 수 있습니다.</span></div><div id="memberGrid" class="member-grid"></div></section>
-
-<section id="statsPage" class="page"><h2 class="section-title">통계</h2>
-<div class="card" style="margin-bottom:16px">
-  <h3>🗓 월간 전체 예배 출석현황</h3>
-  <div class="stats-head">
-    <label>조회 월 <input id="attendanceCalendarMonth" type="month"></label>
-    <button id="refreshAttendanceCalendar" class="action-btn secondary">월간 출석 불러오기</button>
-  </div>
-  <div id="attendanceCalendarStatus" class="remote-status">선택한 달의 모든 예배 출석을 달력 형태로 표시합니다.</div>
-  <div id="attendanceCalendar" class="attendance-calendar"></div>
-  <div id="attendanceMonthlySummary" class="monthly-service-summary"></div>
+<section class="page" id="familiesPage"><h2 class="section-title">가족 명단</h2>
+<div class="toolbar"><input id="familySearch" placeholder="가족 대표자 또는 가족 구성원 검색"/><select id="familyGroup"><option value="">모든 소속</option></select><select id="familySize"><option value="">모든 가족 규모</option><option value="1">1인 가정</option><option value="2">2인 가정</option><option value="3">3인 가정</option><option value="4">4인 이상</option></select></div>
+<div class="result"><span id="familyCount"></span><span>가족카드를 누르면 구성원이 펼쳐집니다.</span></div><div class="families" id="families"></div></section>
+<section class="page" id="membersPage"><h2 class="section-title">개인 검색</h2>
+<div class="toolbar"><input id="memberSearch" placeholder="이름, 직분, 가족코드, 소속 검색"/><select id="positionFilter"><option value="">모든 직분</option></select><select id="memberGroup"><option value="">모든 소속</option></select></div>
+<div class="result"><span id="memberCount"></span><span>검색된 교인이 속한 가족도 함께 확인할 수 있습니다.</span></div><div class="member-grid" id="memberGrid"></div></section>
+<section class="page" id="statsPage"><h2 class="section-title">통계</h2><div class="card" style="margin-bottom:16px">
+<h3>🗓 월간 전체 예배 출석현황</h3>
+<div class="stats-head"><label>조회 월 <input id="attendanceCalendarMonth" type="month"/></label><button class="action-btn secondary" id="refreshAttendanceCalendar">월간 출석 불러오기</button></div>
+<div class="remote-status" id="attendanceCalendarStatus">선택한 달의 모든 예배 출석을 달력 형태로 표시합니다.</div>
+<div class="attendance-calendar" id="attendanceCalendar"></div>
+<div class="monthly-service-summary" id="attendanceMonthlySummary"></div>
 </div>
-
 <div class="card">
 <h3>📈 주간 출석 현황</h3>
 <div class="stats-head">
 <label>예배 <select id="statsService">
-<option value="새벽기도">새벽기도</option><option value="성결예배" selected>성결예배</option><option value="구령예배">구령예배</option><option value="수요예배">수요예배</option><option value="금요기도회">금요기도회</option>
+<option value="새벽기도">새벽기도</option><option selected="" value="성결예배">성결예배</option><option value="구령예배">구령예배</option><option value="수요예배">수요예배</option><option value="금요기도회">금요기도회</option>
 </select></label>
-<label>기준일 <input id="statsDate" type="date"></label>
-<button id="refreshStats" class="action-btn secondary">출석 통계 새로고침</button>
+<label>기준일 <input id="statsDate" type="date"/></label>
+<button class="action-btn secondary" id="refreshStats">출석 통계 새로고침</button>
 </div>
-<div id="statsLoadStatus" class="remote-status">GitHub에 보관된 실제 날짜·예배별 출석 CSV를 기준으로 최근 출석을 분석합니다.</div>
+<div class="remote-status" id="statsLoadStatus">GitHub에 보관된 실제 날짜·예배별 출석 CSV를 기준으로 최근 출석을 분석합니다.</div>
 <div class="stats-kpis">
 <div class="stats-kpi"><span>이번 회차 참석</span><b id="statsCurrent">-</b></div>
 <div class="stats-kpi"><span>전회 대비</span><b id="statsPrev">-</b></div>
 <div class="stats-kpi"><span>전월 평균 대비</span><b id="statsMonth">-</b></div>
 <div class="stats-kpi"><span>최근 평균</span><b id="statsAverage">-</b></div>
 </div>
-<div id="attendanceTrend" class="stats-trend"></div>
+<div class="stats-trend" id="attendanceTrend"></div>
 <p class="stats-note">※ 참석 인원은 ‘출석 + 온라인’을 합산합니다. GitHub에 해당 CSV가 없는 날짜는 그래프에서 제외됩니다.</p>
 </div>
-<div class="grid2" style="margin-top:16px"><div class="card"><h3>직분별 인원</h3><div id="positionChart" class="chart"></div></div><div class="card"><h3>소속별 인원</h3><div id="groupChart" class="chart"></div></div></div>
-<div class="card" style="margin-top:16px"><h3>월별 생일자 수</h3><div id="birthdayChart" class="chart"></div></div>
-<div class="card" style="margin-top:16px"><h3>🎂 월별 생일자 명단</h3><div class="birthday-tools"><select id="birthdayMonth"></select><span id="birthdaySummary" class="birthday-summary"></span></div><div id="birthdayList" class="birthday-list"></div></div>
+<div class="grid2" style="margin-top:16px"><div class="card"><h3>직분별 인원</h3><div class="chart" id="positionChart"></div></div><div class="card"><h3>소속별 인원</h3><div class="chart" id="groupChart"></div></div></div>
+<div class="card" style="margin-top:16px"><h3>월별 생일자 수</h3><div class="chart" id="birthdayChart"></div></div>
+<div class="card" style="margin-top:16px"><h3>🎂 월별 생일자 명단</h3><div class="birthday-tools"><select id="birthdayMonth"></select><span class="birthday-summary" id="birthdaySummary"></span></div><div class="birthday-list" id="birthdayList"></div></div>
 </section>
-
-<section id="servicePage" class="page"><h2 class="section-title">예배·봉사 일정</h2>
-<div class="service-tools"><select id="serviceMonth"><option value="">전체 월</option></select><input id="serviceSearch" placeholder="이름, 그룹, 행사 검색"></div>
-<div id="serviceGrid" class="service-grid"></div></section>
-
-<section id="attendancePage" class="page"><h2 class="section-title">주일예배 출석부</h2>
-
-<div id="attendanceTodayService" class="card" style="margin-bottom:12px"></div>
-<div id="attendanceBirthdays" class="card" style="margin-bottom:12px"></div>
+<section class="page" id="servicePage"><h2 class="section-title">예배·봉사 일정</h2>
+<div class="service-tools"><select id="serviceMonth"><option value="">전체 월</option></select><input id="serviceSearch" placeholder="이름, 그룹, 행사 검색"/></div>
+<div class="service-grid" id="serviceGrid"></div></section>
+<section class="page" id="attendancePage"><h2 class="section-title">주일예배 출석부</h2>
+<div class="card" id="attendanceTodayService" style="margin-bottom:12px"></div>
+<div class="card" id="attendanceBirthdays" style="margin-bottom:12px"></div>
 <div class="local-note">💾 이 버전의 출석 기록은 소속1 그룹별로 출석을 체크하며, 현재 사용 중인 휴대폰·컴퓨터에 저장됩니다. 체크 결과는 날짜·예배별 CSV로 저장해 GitHub에 올리면 여러 사람이 확인할 수 있습니다.</div>
 <div class="attendance-tools">
-<label>예배일 <input id="attendanceDate" type="date"></label>
+<label>예배일 <input id="attendanceDate" type="date"/></label>
 <label>예배 종류
 <select id="attendanceService">
 <option value="새벽기도">새벽기도</option>
-<option value="성결예배" selected>성결예배</option>
+<option selected="" value="성결예배">성결예배</option>
 <option value="구령예배">구령예배</option>
 <option value="수요예배">수요예배</option>
 <option value="금요기도회">금요기도회</option>
 </select>
 </label>
-<input id="attendanceSearch" placeholder="이름 또는 가족 검색">
+<input id="attendanceSearch" placeholder="이름 또는 가족 검색"/>
 </div>
 <div class="attendance-summary">
 <div class="att-stat"><b id="attTotal">0</b><span>전체</span></div><div class="att-stat"><b id="attPresent">0</b><span>출석</span></div><div class="att-stat"><b id="attOnline">0</b><span>온라인</span></div><div class="att-stat"><b id="attAbsent">0</b><span>불출석</span></div><div class="att-stat"><b id="attUnchecked">0</b><span>미체크</span></div><div class="att-stat"><b id="attRate">0%</b><span>참석률</span></div>
@@ -409,83 +388,66 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <div id="attendanceCompactList"></div>
 </div>
 <div class="att-actions">
-<button id="markAllPresent" class="action-btn">전체 출석</button>
-<button id="clearAttendance" class="action-btn danger">당일 기록 초기화</button>
-<button id="loadGitHubAttendance" class="action-btn secondary">GitHub 출석 불러오기</button>
-<button id="exportAttendance" class="action-btn secondary">날짜별 CSV 저장</button>
-<button id="importAttendanceBtn" class="action-btn secondary">CSV 가져오기</button>
-<button id="sharePresent" class="action-btn">출석자 명단 공유</button>
-<button id="copyPresent" class="action-btn secondary">출석자 명단 복사</button>
-<button id="shareAbsent" class="action-btn">불출석 명단 공유</button>
-<button id="copyAbsent" class="action-btn secondary">불출석 명단 복사</button>
-<button id="exportAbsent" class="action-btn secondary">불출석 CSV 저장</button>
-<input id="importAttendance" type="file" accept=".csv" hidden>
+<button class="action-btn" id="markAllPresent">전체 출석</button>
+<button class="action-btn danger" id="clearAttendance">당일 기록 초기화</button>
+<button class="action-btn secondary" id="loadGitHubAttendance">GitHub 출석 불러오기</button>
+<button class="action-btn secondary" id="exportAttendance">날짜별 CSV 저장</button>
+<button class="action-btn secondary" id="importAttendanceBtn">CSV 가져오기</button>
+<button class="action-btn" id="sharePresent">출석자 명단 공유</button>
+<button class="action-btn secondary" id="copyPresent">출석자 명단 복사</button>
+<button class="action-btn" id="shareAbsent">불출석 명단 공유</button>
+<button class="action-btn secondary" id="copyAbsent">불출석 명단 복사</button>
+<button class="action-btn secondary" id="exportAbsent">불출석 CSV 저장</button>
+<input accept=".csv" hidden="" id="importAttendance" type="file"/>
 </div>
-<div id="absentSharePreview" class="share-box" style="display:none"></div><div id="remoteAttendanceStatus" class="remote-status">예배일과 예배 종류를 선택하면 이 휴대폰의 저장 기록을 먼저 불러오고, 기록이 없으면 GitHub의 예배별 CSV를 확인합니다.</div>
+<div class="share-box" id="absentSharePreview" style="display:none"></div><div class="remote-status" id="remoteAttendanceStatus">예배일과 예배 종류를 선택하면 이 휴대폰의 저장 기록을 먼저 불러오고, 기록이 없으면 GitHub의 예배별 CSV를 확인합니다.</div>
 <div id="attendanceList"></div></section>
-
-
-<section id="carePage" class="page">
+<section class="page" id="carePage">
 <h2 class="section-title">돌봄 관리</h2>
 <div class="card">
-  <h3>📞 연속 불출석 확인</h3>
-  <div class="care-tools">
-    <label>예배
+<h3>📞 연속 불출석 확인</h3>
+<div class="care-tools">
+<label>예배
       <select id="careService">
-        <option value="새벽기도">새벽기도</option>
-        <option value="성결예배" selected>성결예배</option>
-        <option value="구령예배">구령예배</option>
-        <option value="수요예배">수요예배</option>
-        <option value="금요기도회">금요기도회</option>
-      </select>
-    </label>
-    <label>기준일 <input id="careDate" type="date"></label>
-    <button id="refreshCare" class="action-btn secondary">돌봄 대상 확인</button>
-  </div>
-  <div id="careStatus" class="remote-status">최근 3회의 출석 CSV를 읽어 연속 불출석자를 분류합니다.</div>
-  <div class="care-grid">
-    <div class="care-card red"><h3>🔴 3회 연속 불출석</h3><div id="care3"></div></div>
-    <div class="care-card orange"><h3>🟠 2회 연속 불출석</h3><div id="care2"></div></div>
-    <div class="care-card green"><h3>🟢 이번 회차 불출석</h3><div id="care1"></div></div>
-  </div>
-  <div class="care-share">
-    <button id="shareCare" class="action-btn">카카오톡 공유</button>
-    <button id="copyCare" class="action-btn secondary">명단 복사</button>
-  </div>
-  <div id="carePreview" class="share-box" style="display:none;margin-top:12px"></div>
+<option value="새벽기도">새벽기도</option>
+<option selected="" value="성결예배">성결예배</option>
+<option value="구령예배">구령예배</option>
+<option value="수요예배">수요예배</option>
+<option value="금요기도회">금요기도회</option>
+</select>
+</label>
+<label>기준일 <input id="careDate" type="date"/></label>
+<button class="action-btn secondary" id="refreshCare">돌봄 대상 확인</button>
+</div>
+<div class="remote-status" id="careStatus">최근 3회의 출석 CSV를 읽어 연속 불출석자를 분류합니다.</div>
+<div class="care-grid">
+<div class="care-card red"><h3>🔴 3회 연속 불출석</h3><div id="care3"></div></div>
+<div class="care-card orange"><h3>🟠 2회 연속 불출석</h3><div id="care2"></div></div>
+<div class="care-card green"><h3>🟢 이번 회차 불출석</h3><div id="care1"></div></div>
+</div>
+<div class="care-share">
+<button class="action-btn" id="shareCare">카카오톡 공유</button>
+<button class="action-btn secondary" id="copyCare">명단 복사</button>
+</div>
+<div class="share-box" id="carePreview" style="display:none;margin-top:12px"></div>
 </div>
 </section>
-
-
-
-<section id="financePage" class="page">
+<section class="page" id="financePage">
 <h2 class="section-title">재정</h2>
-<div class="finance-head card">
-  <div><h3 style="margin:0">💰 <span id="financePeriod">2026년 6월 재정현황(누적)</span></h3><p class="finance-note">장년부 재정보고서 기준</p></div>
-  <label class="finance-month-select">조회 월 <select id="financeMonth"></select></label>
-</div>
+<div class="finance-head card"><div><h3 style="margin:0">💰 <span id="financePeriod">2026년 6월 재정현황(누적)</span></h3><p class="finance-note">장년부 재정보고서 기준</p></div><label class="finance-month-select">조회 월 <select id="financeMonth"></select></label></div>
 <div class="finance-kpis">
-  <div class="finance-kpi"><span>총수입</span><b id="financeIncome">0원</b><small id="financeIncomeBudget"></small><em id="financeIncomeRate"></em></div>
-  <div class="finance-kpi"><span>총지출</span><b id="financeExpense">0원</b><small id="financeExpenseBudget"></small><em id="financeExpenseRate"></em></div>
-  <div class="finance-kpi"><span>잔액</span><b id="financeBalance">0원</b><small>수입 - 지출</small></div>
-  <div class="finance-kpi"><span>총예산</span><b id="financeBudget">0원</b><small>연간 예산</small></div>
+<div class="finance-kpi"><span>총수입</span><b id="financeIncome">0원</b><small id="financeIncomeBudget"></small><em id="financeIncomeRate"></em></div>
+<div class="finance-kpi"><span>총지출</span><b id="financeExpense">0원</b><small id="financeExpenseBudget"></small><em id="financeExpenseRate"></em></div>
+<div class="finance-kpi"><span>잔액</span><b id="financeBalance">0원</b><small>수입 - 지출</small></div>
+<div class="finance-kpi"><span>총예산</span><b id="financeBudget">0원</b><small>연간 예산</small></div>
 </div>
-<div class="card">
-  <h3>📥 장년도 재정수입 대시보드</h3>
-  <p class="finance-note">항목을 누르면 세부항목이 펼쳐집니다.</p>
-  <div id="financeIncomeGroups" class="finance-accordion"></div>
-</div>
-<div class="card" style="margin-top:16px">
-  <h3>📤 장년도 재정지출 대시보드</h3>
-  <p class="finance-note">항목을 누르면 세부항목이 펼쳐집니다.</p>
-  <div id="financeExpenseGroups" class="finance-accordion"></div>
-</div>
+<div class="card"><h3>📥 장년도 재정수입 대시보드</h3><p class="finance-note">항목을 누르면 세부항목이 펼쳐집니다.</p><div class="finance-accordion" id="financeIncomeGroups"></div></div>
+<div class="card" style="margin-top:16px"><h3>📤 장년도 재정지출 대시보드</h3><p class="finance-note">항목을 누르면 세부항목이 펼쳐집니다.</p><div class="finance-accordion" id="financeExpenseGroups"></div></div>
 <div class="finance-warning">재정 자료는 민감한 정보입니다. 공개 GitHub Pages를 사용하는 경우 열람 범위를 신중히 관리하세요.</div>
 </section>
-
-<section id="noticePage" class="page"><h2 class="section-title">공지사항</h2><div class="card"><div id="allNotices"></div></div></section>
-<section id="eventsPage" class="page"><h2 class="section-title">교회 일정</h2><div id="events" class="schedule"></div></section>
-<section id="morePage" class="page"><h2 class="section-title">이용 안내</h2><div class="info"><b>📱 앱처럼 설치</b><br>안드로이드 Chrome: ⋮ → 앱 설치 또는 홈 화면에 추가<br>아이폰 Safari: 공유 □↑ → 홈 화면에 추가<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><b>🔄 데이터 업데이트</b><br>명단이 변경되면 새 ZIP을 Netlify에 다시 업로드하면 같은 주소에서 최신 자료가 표시됩니다.<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"><b>🔐 개인정보 보호</b><br>교회 내부에서만 사용하고 외부 전송이나 공개 게시를 삼가 주세요.</div></section>
+<section class="page" id="noticePage"><h2 class="section-title">공지사항</h2><div class="card"><div id="allNotices"></div></div></section>
+<section class="page" id="eventsPage"><h2 class="section-title">교회 일정</h2><div class="schedule" id="events"></div></section>
+<section class="page" id="morePage"><h2 class="section-title">이용 안내</h2><div class="info"><b>📱 앱처럼 설치</b><br/>안드로이드 Chrome: ⋮ → 앱 설치 또는 홈 화면에 추가<br/>아이폰 Safari: 공유 □↑ → 홈 화면에 추가<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><b>🔄 데이터 업데이트</b><br/>명단이 변경되면 새 ZIP을 Netlify에 다시 업로드하면 같은 주소에서 최신 자료가 표시됩니다.<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><b>🔐 개인정보 보호</b><br/>교회 내부에서만 사용하고 외부 전송이나 공개 게시를 삼가 주세요.</div></section>
 </main>
 <nav class="bottom"><div class="nav" style="grid-template-columns:repeat(10,1fr)">
 <button class="active" data-page="home"><span>🏠</span>홈</button>
@@ -1183,19 +1145,20 @@ function setTextSafe(selector,value){
 
 
 function renderFinanceGroupAccordion(groups,rootId){
- const root=$('#'+rootId);if(!root)return;
- root.innerHTML=(groups||[]).map((g,i)=>`<div class="finance-group"><div class="finance-group-head"><strong>▸ ${esc(g.name)}</strong><span>${money(g.actual)}</span><span class="budget">예산 ${money(g.budget)}</span><b class="rate">${Number(g.rate||0).toFixed(2)}%</b></div><div class="finance-group-body">${(g.details||[]).map(d=>`<div class="finance-detail-line"><strong>${esc(d.name)}</strong><span>${money(d.actual)}</span><span class="budget">예산 ${money(d.budget)}</span><span class="rate">${d.budget?Number(d.rate||0).toFixed(2)+'%':'-'}</span></div>`).join('')}</div></div>`).join('');
- root.querySelectorAll('.finance-group-head').forEach(h=>h.onclick=()=>{const g=h.parentElement;g.classList.toggle('open');h.querySelector('strong').textContent=(g.classList.contains('open')?'▾ ':'▸ ')+h.querySelector('strong').textContent.replace(/^[▸▾]\s*/,'')});
+  const root=$('#'+rootId);if(!root)return;
+  root.innerHTML=(groups||[]).map(g=>`<div class="finance-group"><div class="finance-group-head"><strong>▸ ${esc(g.name)}</strong><span>${money(g.actual)}</span><span class="budget">예산 ${money(g.budget)}</span><b class="rate">${Number(g.rate||0).toFixed(2)}%</b></div><div class="finance-group-body">${(g.details||[]).map(d=>`<div class="finance-detail-line"><strong>${esc(d.name)}</strong><span>${money(d.actual)}</span><span class="budget">예산 ${money(d.budget)}</span><span class="rate">${d.budget?Number(d.rate||0).toFixed(2)+'%':'-'}</span></div>`).join('')}</div></div>`).join('');
+  root.querySelectorAll('.finance-group-head').forEach(h=>h.onclick=()=>{const box=h.parentElement;box.classList.toggle('open');const t=h.querySelector('strong');t.textContent=(box.classList.contains('open')?'▾ ':'▸ ')+t.textContent.replace(/^[▸▾]\s*/,'')});
 }
 function renderFinanceDashboard(){
- const keys=Object.keys(FINANCE_MONTHS).sort().reverse();if(!currentFinanceKey&&keys.length)currentFinanceKey=keys[0];
- const FDATA=FINANCE_MONTHS[currentFinanceKey];if(!FDATA)return;
- const s=FDATA.summary,period=financeMonthLabel(currentFinanceKey);
- setTextSafe('#financePeriod',period+' 재정현황(누적)');
- setTextSafe('#financeIncome',money(s.income));setTextSafe('#financeIncomeBudget',`예산 ${money(s.budget)}`);setTextSafe('#financeIncomeRate',`집행률 ${Number(s.incomeExecutionRate).toFixed(2)}%`);
- setTextSafe('#financeExpense',money(s.expense));setTextSafe('#financeExpenseBudget',`예산 ${money(s.budget)}`);setTextSafe('#financeExpenseRate',`집행률 ${Number(s.expenseExecutionRate).toFixed(2)}%`);
- setTextSafe('#financeBalance',money(s.balance));setTextSafe('#financeBudget',money(s.budget));
- renderFinanceGroupAccordion(FDATA.incomeGroups,'financeIncomeGroups');renderFinanceGroupAccordion(FDATA.expenseGroups,'financeExpenseGroups');
+  const keys=Object.keys(FINANCE_MONTHS).sort().reverse();if(!currentFinanceKey&&keys.length)currentFinanceKey=keys[0];
+  const FDATA=FINANCE_MONTHS[currentFinanceKey];if(!FDATA)return;
+  const s=FDATA.summary;
+  setTextSafe('#financePeriod',financeMonthLabel(currentFinanceKey)+' 재정현황(누적)');
+  setTextSafe('#financeIncome',money(s.income));setTextSafe('#financeIncomeBudget',`예산 ${money(s.budget)}`);setTextSafe('#financeIncomeRate',`집행률 ${Number(s.incomeExecutionRate).toFixed(2)}%`);
+  setTextSafe('#financeExpense',money(s.expense));setTextSafe('#financeExpenseBudget',`예산 ${money(s.budget)}`);setTextSafe('#financeExpenseRate',`집행률 ${Number(s.expenseExecutionRate).toFixed(2)}%`);
+  setTextSafe('#financeBalance',money(s.balance));setTextSafe('#financeBudget',money(s.budget));
+  renderFinanceGroupAccordion(FDATA.incomeGroups,'financeIncomeGroups');
+  renderFinanceGroupAccordion(FDATA.expenseGroups,'financeExpenseGroups');
 }
 
 
@@ -1261,9 +1224,10 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   $('#importAttendance').onchange=e=>{if(e.target.files[0])importAttendanceCsv(e.target.files[0])};renderAttendanceExtras();loadGitHubAttendance(false);
   document.querySelectorAll('[data-att-view]').forEach(b=>b.onclick=()=>{attendanceView=b.dataset.attView;renderCompactAttendance()});
   $('#sharePresent').onclick=sharePresentList;$('#copyPresent').onclick=copyPresentList;$('#shareAbsent').onclick=shareAbsentList;$('#copyAbsent').onclick=copyAbsentList;$('#exportAbsent').onclick=exportAbsentCsv;
-  $('#attendanceCalendarMonth').value=new Date().toISOString().slice(0,7);
-  $('#refreshAttendanceCalendar').onclick=loadMonthlyAttendanceCalendar;
-  $('#attendanceCalendarMonth').onchange=loadMonthlyAttendanceCalendar;
+  const calendarMonth=$('#attendanceCalendarMonth');
+  if(calendarMonth)calendarMonth.value=new Date().toISOString().slice(0,7);
+  bindClick('#refreshAttendanceCalendar',loadMonthlyAttendanceCalendar);
+  bindChange('#attendanceCalendarMonth',loadMonthlyAttendanceCalendar);
   $('#statsDate').value=$('#attendanceDate').value;$('#statsService').value='성결예배';$('#careDate').value=$('#attendanceDate').value;$('#careService').value='성결예배';$('#refreshCare').onclick=loadCareManagement;$('#shareCare').onclick=shareCareList;$('#copyCare').onclick=copyCareList;$('#refreshStats').onclick=loadAttendanceStats;$('#statsService').onchange=loadAttendanceStats;$('#statsDate').onchange=loadAttendanceStats;
   $('#homeAttendanceService').onchange=loadHomeMonthlyAttendance;$('#refreshHomeAttendance').onclick=loadHomeMonthlyAttendance;loadHomeMonthlyAttendance();
   $('#attendanceGoal').value=getGoal();$('#attendanceGoal').onchange=e=>{setGoal(e.target.value);updateAttendanceGoal();loadHomeMonthlyAttendance()};updateAttendanceGoal();

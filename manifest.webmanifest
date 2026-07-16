@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v8.2",
+  "name": "Gunpo Eunhye Corps Family Management System v8.2.1",
   "short_name": "Gunpo Eunhye",
-  "description": "월간 전체 예배 출석 달력, 상세 수입·지출 재정 대시보드",
+  "description": "화면 구조 복구, 월간 전체 예배 출석 달력, 재정 상세 대시보드",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
