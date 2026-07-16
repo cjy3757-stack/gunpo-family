@@ -1,7 +1,7 @@
 {
   "name": "GunpoEunhye Corps Family Management System V8.2.4",
-  "short_name": "Gunpo Eunhye",
-  "description": "재정 제목 정리 및 이번 달 총 수입·지출 표시",
+  "short_name": "GunpoEunhye V8.2.4",
+  "description": "GunpoEunhye Corps Family Management System V8.2.4",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

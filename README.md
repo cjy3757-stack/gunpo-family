@@ -1,4 +1,4 @@
-# Gunpo Eunhye Corps Family Management System v7.0 Final Stable
+# GunpoEunhye Corps Family Management System V8.2.4 Final Stable
 
 ## 운영 원칙
 - GitHub Pages에서 무료로 운영합니다.
