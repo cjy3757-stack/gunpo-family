@@ -1,7 +1,7 @@
 {
-  "name": "Gunpo Eunhye Corps Family Management System v8.2.3",
+  "name": "GunpoEunhye Corps Family Management System V8.2.4",
   "short_name": "Gunpo Eunhye",
-  "description": "누락된 월간 출석 함수 복구 및 전체 앱 초기화 오류 수정",
+  "description": "재정 제목 정리 및 이번 달 총 수입·지출 표시",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
