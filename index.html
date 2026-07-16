@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9e1b32">
 <meta name="robots" content="noindex,nofollow">
-<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v8.1.2</small></title>
+<title>Gunpo Eunhye Corps Family Management System <small style='font-size:14px'>v8.2</small></title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -159,16 +159,13 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 
 
 .quick-actions button{
-  font-size:36px !important;
+  font-size:21px !important;
   line-height:1.25;
-  min-height:96px;
-  padding:18px 14px !important;
+  min-height:70px;
+  padding:12px 10px !important;
 }
 @media(max-width:760px){
-  .quick-actions button{
-    font-size:30px !important;
-    min-height:86px;
-  }
+  .quick-actions button{font-size:19px !important;min-height:66px}
 }
 
 .finance-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
@@ -213,6 +210,40 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 .finance-detail-progress{height:8px;background:#eee8e2;border-radius:99px;overflow:hidden;margin-top:7px}
 .finance-detail-progress i{display:block;height:100%;background:linear-gradient(90deg,var(--navy),#4b81aa);border-radius:99px}
 
+
+.attendance-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.calendar-head{text-align:center;font-weight:800;color:var(--navy);font-size:12px;padding:7px}
+.calendar-day{min-height:118px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px;font-size:11px}
+.calendar-day.empty{background:transparent;border:0}
+.calendar-date{font-weight:900;color:var(--navy);margin-bottom:5px}
+.calendar-service{background:#eef2f6;border-radius:7px;padding:4px 5px;margin:3px 0;line-height:1.35}
+.calendar-total{margin-top:5px;font-weight:900;color:var(--red)}
+.monthly-service-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.monthly-service-summary div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.monthly-service-summary span{display:block;font-size:11px;color:var(--muted)}
+.monthly-service-summary b{display:block;font-size:18px;color:var(--navy);margin-top:4px}
+.finance-accordion{display:flex;flex-direction:column;gap:9px}
+.finance-group{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#fff}
+.finance-group-head{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:13px;cursor:pointer;background:#faf8f5}
+.finance-group-head strong{color:var(--navy)}
+.finance-group-head span{font-size:12px;color:var(--muted)}
+.finance-group-head b{font-size:13px;color:var(--red)}
+.finance-group-body{display:none;padding:4px 13px 12px}
+.finance-group.open .finance-group-body{display:block}
+.finance-detail-line{display:grid;grid-template-columns:1fr auto auto auto;gap:9px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.finance-detail-line:last-child{border-bottom:0}
+.finance-detail-line span:nth-child(n+2){text-align:right;color:var(--muted)}
+@media(max-width:760px){
+ .attendance-calendar{gap:3px}
+ .calendar-day{min-height:92px;padding:4px;font-size:9px}
+ .calendar-head{font-size:10px;padding:4px}
+ .monthly-service-summary{grid-template-columns:repeat(2,1fr)}
+ .finance-group-head{grid-template-columns:1fr auto}
+ .finance-group-head .budget,.finance-group-head .rate{display:none}
+ .finance-detail-line{grid-template-columns:1fr auto}
+ .finance-detail-line .budget,.finance-detail-line .rate{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -231,7 +262,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
   <h3>⚡ 빠른 실행</h3>
   <div class="quick-actions">
     <button class="primary" data-jump="attendancePage">✅ 출석 체크</button>
-    <button data-jump="servicePage">🙏 봉사 일정</button>
+    <button data-jump="servicePage">🙏 예배·봉사 일정</button>
     <button data-jump="carePage">📞 돌봄 관리</button>
   </div>
 </div>
@@ -240,6 +271,10 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 
 <div class="hero"><h2>가족으로 연결되고, 믿음으로 함께하는 공동체</h2><p>가족 명단, 예배 출석, 돌봄, 생일, 공지와 교회 일정을 한곳에서 확인합니다.</p></div>
 <div class="kpis"><div class="kpi"><span>총 가정</span><b id="familyKpi">0</b></div><div class="kpi"><span>총 교인</span><b id="memberKpi">0</b></div><div class="kpi"><span>평균 가족원</span><b id="avgKpi">0</b></div><div class="kpi"><span>소속 모임</span><b id="groupKpi">0</b></div></div>
+<div class="card" style="margin-top:16px">
+  <h3>📅 다가오는 교회 일정</h3>
+  <div id="homeEvents"></div>
+</div>
 <div class="grid2"><div class="card"><h3>📢 최근 공지</h3><div id="homeNotices"></div></div><div class="card"><h3>📊 가족 규모 현황</h3><div id="familySizeChart" class="chart"></div></div></div>
 
 
@@ -272,18 +307,9 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </div>
 
 
-<div class="card" style="margin-top:16px">
-  <h3>📅 다가오는 교회 일정</h3>
-  <div id="homeEvents"></div>
-</div>
 
-<div class="card" style="margin-top:16px">
-  <h3>💰 이번 달 재정 요약</h3>
-  <div class="finance-home-grid">
-    <div><span>수입</span><b id="homeFinanceIncome">0원</b></div>
-    <div><span>지출</span><b id="homeFinanceExpense">0원</b></div>
-    <div><span>잔액</span><b id="homeFinanceBalance">0원</b></div>
-  </div>
+
+
 </div>
 
 <div class="card" style="margin-top:16px"><h3>🎂 생일 알림</h3><div id="solarBirthdayHome"></div></div>
@@ -315,6 +341,17 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <div class="result"><span id="memberCount"></span><span>검색된 교인이 속한 가족도 함께 확인할 수 있습니다.</span></div><div id="memberGrid" class="member-grid"></div></section>
 
 <section id="statsPage" class="page"><h2 class="section-title">통계</h2>
+<div class="card" style="margin-bottom:16px">
+  <h3>🗓 월간 전체 예배 출석현황</h3>
+  <div class="stats-head">
+    <label>조회 월 <input id="attendanceCalendarMonth" type="month"></label>
+    <button id="refreshAttendanceCalendar" class="action-btn secondary">월간 출석 불러오기</button>
+  </div>
+  <div id="attendanceCalendarStatus" class="remote-status">선택한 달의 모든 예배 출석을 달력 형태로 표시합니다.</div>
+  <div id="attendanceCalendar" class="attendance-calendar"></div>
+  <div id="attendanceMonthlySummary" class="monthly-service-summary"></div>
+</div>
+
 <div class="card">
 <h3>📈 주간 출석 현황</h3>
 <div class="stats-head">
@@ -420,55 +457,30 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </section>
 
 
+
 <section id="financePage" class="page">
-  <h2 class="section-title">재정</h2>
-  <div class="finance-head card">
-    <div>
-      <h3 style="margin:0">💰 <span id="financePeriod">재정현황</span></h3>
-      <p class="finance-note">장년부 재정보고서 기준</p>
-    </div>
-    <label class="finance-month-select">조회 월
-      <select id="financeMonth"></select>
-    </label>
-  </div>
-
-  <div class="finance-kpis">
-    <div class="finance-kpi"><span>총수입</span><b id="financeIncome">0원</b><small id="financeIncomeBudget"></small><em id="financeIncomeRate"></em></div>
-    <div class="finance-kpi"><span>총지출</span><b id="financeExpense">0원</b><small id="financeExpenseBudget"></small><em id="financeExpenseRate"></em></div>
-    <div class="finance-kpi"><span>잔액</span><b id="financeBalance">0원</b><small>수입 - 지출</small></div>
-    <div class="finance-kpi"><span>총예산</span><b id="financeBudget">0원</b><small>연간 예산</small></div>
-  </div>
-
-  <div class="grid2">
-    <div class="card">
-      <h3>📈 수입 TOP 5</h3>
-      <div id="financeIncomeBars" class="finance-bars"></div>
-    </div>
-    <div class="card">
-      <h3>📉 지출 TOP 5</h3>
-      <div id="financeExpenseBars" class="finance-bars"></div>
-    </div>
-  </div>
-
-  <div class="grid2" style="margin-top:16px">
-    <div class="card">
-      <h3>🧾 주요 헌금 내역 · 예산 대비</h3>
-      <div id="financeIncomeList" class="finance-list"></div>
-    </div>
-    <div class="card">
-      <h3>🧾 주요 지출 내역 · 예산 대비</h3>
-      <div id="financeExpenseList" class="finance-list"></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:16px">
-    <h3>🎯 예산 대비 집행률</h3>
-    <div id="financeBudgetRates" class="finance-budget-list"></div>
-  </div>
-
-  <div class="finance-warning">
-    재정 자료는 민감한 정보입니다. 공개 GitHub Pages를 사용하는 경우 열람 범위를 신중히 관리하세요.
-  </div>
+<h2 class="section-title">재정</h2>
+<div class="finance-head card">
+  <div><h3 style="margin:0">💰 <span id="financePeriod">2026년 6월 재정현황(누적)</span></h3><p class="finance-note">장년부 재정보고서 기준</p></div>
+  <label class="finance-month-select">조회 월 <select id="financeMonth"></select></label>
+</div>
+<div class="finance-kpis">
+  <div class="finance-kpi"><span>총수입</span><b id="financeIncome">0원</b><small id="financeIncomeBudget"></small><em id="financeIncomeRate"></em></div>
+  <div class="finance-kpi"><span>총지출</span><b id="financeExpense">0원</b><small id="financeExpenseBudget"></small><em id="financeExpenseRate"></em></div>
+  <div class="finance-kpi"><span>잔액</span><b id="financeBalance">0원</b><small>수입 - 지출</small></div>
+  <div class="finance-kpi"><span>총예산</span><b id="financeBudget">0원</b><small>연간 예산</small></div>
+</div>
+<div class="card">
+  <h3>📥 장년도 재정수입 대시보드</h3>
+  <p class="finance-note">항목을 누르면 세부항목이 펼쳐집니다.</p>
+  <div id="financeIncomeGroups" class="finance-accordion"></div>
+</div>
+<div class="card" style="margin-top:16px">
+  <h3>📤 장년도 재정지출 대시보드</h3>
+  <p class="finance-note">항목을 누르면 세부항목이 펼쳐집니다.</p>
+  <div id="financeExpenseGroups" class="finance-accordion"></div>
+</div>
+<div class="finance-warning">재정 자료는 민감한 정보입니다. 공개 GitHub Pages를 사용하는 경우 열람 범위를 신중히 관리하세요.</div>
 </section>
 
 <section id="noticePage" class="page"><h2 class="section-title">공지사항</h2><div class="card"><div id="allNotices"></div></div></section>
@@ -1169,54 +1181,21 @@ function setTextSafe(selector,value){
   if(el)el.textContent=value;
 }
 
+
+function renderFinanceGroupAccordion(groups,rootId){
+ const root=$('#'+rootId);if(!root)return;
+ root.innerHTML=(groups||[]).map((g,i)=>`<div class="finance-group"><div class="finance-group-head"><strong>▸ ${esc(g.name)}</strong><span>${money(g.actual)}</span><span class="budget">예산 ${money(g.budget)}</span><b class="rate">${Number(g.rate||0).toFixed(2)}%</b></div><div class="finance-group-body">${(g.details||[]).map(d=>`<div class="finance-detail-line"><strong>${esc(d.name)}</strong><span>${money(d.actual)}</span><span class="budget">예산 ${money(d.budget)}</span><span class="rate">${d.budget?Number(d.rate||0).toFixed(2)+'%':'-'}</span></div>`).join('')}</div></div>`).join('');
+ root.querySelectorAll('.finance-group-head').forEach(h=>h.onclick=()=>{const g=h.parentElement;g.classList.toggle('open');h.querySelector('strong').textContent=(g.classList.contains('open')?'▾ ':'▸ ')+h.querySelector('strong').textContent.replace(/^[▸▾]\s*/,'')});
+}
 function renderFinanceDashboard(){
-  const keys=Object.keys(FINANCE_MONTHS).sort().reverse();
-  if(!currentFinanceKey&&keys.length)currentFinanceKey=keys[0];
-  const FDATA=FINANCE_MONTHS[currentFinanceKey];
-  if(!FDATA){
-    const page=$('#financePage');
-    if(page&&!page.querySelector('.finance-no-data'))page.insertAdjacentHTML('afterbegin','<div class="remote-status warn finance-no-data">선택한 월의 재정자료가 없습니다.</div>');
-    return;
-  }
-
-  const s=FDATA.summary;
-  const periodEl=$('#financePeriod');
-  if(periodEl)periodEl.textContent=financeMonthLabel(currentFinanceKey)+' 재정현황';
-  setTextSafe('#financeIncome',money(s.income));
-  setTextSafe('#financeIncomeBudget',`예산 ${money(s.budget)}`);
-  setTextSafe('#financeIncomeRate',`집행률 ${Number(s.incomeExecutionRate).toFixed(2)}%`);
-
-  setTextSafe('#financeExpense',money(s.expense));
-  setTextSafe('#financeExpenseBudget',`예산 ${money(s.budget)}`);
-  setTextSafe('#financeExpenseRate',`집행률 ${Number(s.expenseExecutionRate).toFixed(2)}%`);
-
-  setTextSafe('#financeBalance',money(s.balance));
-  setTextSafe('#financeBudget',money(s.budget));
-
-  setTextSafe('#homeFinanceIncome',money(s.income));
-  setTextSafe('#homeFinanceExpense',money(s.expense));
-  setTextSafe('#homeFinanceBalance',money(s.balance));
-
-  renderFinanceBarRows(FDATA.incomeCategories,'financeIncomeBars');
-  renderFinanceBarRows(FDATA.expenseCategories,'financeExpenseBars');
-
-  const incomeDetails=(FDATA.incomeDetails||[]).map(d=>{
-    const found=(FDATA.incomeCategories||[]).find(c=>c.name===d.name);
-    return {...d,budget:found?.budget||0,rate:found?.rate||0};
-  });
-  const expenseDetails=(FDATA.expenseDetails||[]).map(d=>{
-    const found=(FDATA.expenseCategories||[]).find(c=>c.name===d.name);
-    return {...d,budget:found?.budget||0,rate:found?.rate||0};
-  });
-
-  renderFinanceDetailList(FDATA.incomeCategories,'financeIncomeList',20);
-  renderFinanceDetailList(FDATA.expenseCategories,'financeExpenseList',20);
-
-  const combined=[
-    ...FDATA.incomeCategories.map(x=>({...x,type:'수입'})),
-    ...FDATA.expenseCategories.map(x=>({...x,type:'지출'}))
-  ].sort((a,b)=>b.rate-a.rate);
-  $('#financeBudgetRates').innerHTML=combined.map(x=>`<div class="finance-budget-row"><div class="finance-budget-head"><span>${esc(x.type)} · ${esc(x.name)}</span><b>${Number(x.rate).toFixed(2)}%</b></div><div class="finance-budget-bar"><i style="width:${Math.min(Number(x.rate),100)}%"></i></div></div>`).join('');
+ const keys=Object.keys(FINANCE_MONTHS).sort().reverse();if(!currentFinanceKey&&keys.length)currentFinanceKey=keys[0];
+ const FDATA=FINANCE_MONTHS[currentFinanceKey];if(!FDATA)return;
+ const s=FDATA.summary,period=financeMonthLabel(currentFinanceKey);
+ setTextSafe('#financePeriod',period+' 재정현황(누적)');
+ setTextSafe('#financeIncome',money(s.income));setTextSafe('#financeIncomeBudget',`예산 ${money(s.budget)}`);setTextSafe('#financeIncomeRate',`집행률 ${Number(s.incomeExecutionRate).toFixed(2)}%`);
+ setTextSafe('#financeExpense',money(s.expense));setTextSafe('#financeExpenseBudget',`예산 ${money(s.budget)}`);setTextSafe('#financeExpenseRate',`집행률 ${Number(s.expenseExecutionRate).toFixed(2)}%`);
+ setTextSafe('#financeBalance',money(s.balance));setTextSafe('#financeBudget',money(s.budget));
+ renderFinanceGroupAccordion(FDATA.incomeGroups,'financeIncomeGroups');renderFinanceGroupAccordion(FDATA.expenseGroups,'financeExpenseGroups');
 }
 
 
@@ -1229,7 +1208,7 @@ function setupMainNavigation(){
       if(page)page.classList.add('active');
       b.classList.add('active');
       try{
-        if(b.dataset.page==='statsPage')loadAttendanceStats();
+        if(b.dataset.page==='statsPage'){loadAttendanceStats();loadMonthlyAttendanceCalendar();}
         if(b.dataset.page==='carePage')loadCareManagement();
         if(b.dataset.page==='financePage')renderFinanceDashboard();
       }catch(e){
@@ -1282,6 +1261,9 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   $('#importAttendance').onchange=e=>{if(e.target.files[0])importAttendanceCsv(e.target.files[0])};renderAttendanceExtras();loadGitHubAttendance(false);
   document.querySelectorAll('[data-att-view]').forEach(b=>b.onclick=()=>{attendanceView=b.dataset.attView;renderCompactAttendance()});
   $('#sharePresent').onclick=sharePresentList;$('#copyPresent').onclick=copyPresentList;$('#shareAbsent').onclick=shareAbsentList;$('#copyAbsent').onclick=copyAbsentList;$('#exportAbsent').onclick=exportAbsentCsv;
+  $('#attendanceCalendarMonth').value=new Date().toISOString().slice(0,7);
+  $('#refreshAttendanceCalendar').onclick=loadMonthlyAttendanceCalendar;
+  $('#attendanceCalendarMonth').onchange=loadMonthlyAttendanceCalendar;
   $('#statsDate').value=$('#attendanceDate').value;$('#statsService').value='성결예배';$('#careDate').value=$('#attendanceDate').value;$('#careService').value='성결예배';$('#refreshCare').onclick=loadCareManagement;$('#shareCare').onclick=shareCareList;$('#copyCare').onclick=copyCareList;$('#refreshStats').onclick=loadAttendanceStats;$('#statsService').onchange=loadAttendanceStats;$('#statsDate').onchange=loadAttendanceStats;
   $('#homeAttendanceService').onchange=loadHomeMonthlyAttendance;$('#refreshHomeAttendance').onclick=loadHomeMonthlyAttendance;loadHomeMonthlyAttendance();
   $('#attendanceGoal').value=getGoal();$('#attendanceGoal').onchange=e=>{setGoal(e.target.value);updateAttendanceGoal();loadHomeMonthlyAttendance()};updateAttendanceGoal();
