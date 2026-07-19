@@ -6,7 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#9e1b32" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>GunpoEunhye Corps Family Management System V8.5.1</title>
+<title>GunpoEunhye Corps Family Management System V8.6.0</title>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="icon"/>
 <style>
@@ -303,7 +303,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.5.1</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.6.0</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section class="page active" id="home">
 <div class="install-banner" id="installBanner">
@@ -568,6 +568,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <button data-page="eventsPage"><span>📅</span>일정</button>
 </div></nav>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="data.js"></script>
 <script src="service-data.js"></script>
 <script src="office-data.js"></script>
@@ -1274,8 +1275,62 @@ function jumpToPage(page){
 }
 
 
-const NOTICE_DATA=window.NOTICE_DATA||[];
-const EVENT_DATA=window.EVENT_DATA||[];
+let NOTICE_DATA=window.NOTICE_DATA||[];
+let EVENT_DATA=window.EVENT_DATA||[];
+
+function excelDateISO(value){
+  if(value===null||value===undefined||value==='')return '';
+  if(value instanceof Date&&!isNaN(value))return value.toISOString().slice(0,10);
+  if(typeof value==='number'&&window.XLSX){
+    const d=XLSX.SSF.parse_date_code(value);
+    if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+  }
+  const text=String(value).trim();
+  let m=text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  m=text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+  if(m)return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+  return text;
+}
+function excelTimeText(value){
+  if(value===null||value===undefined||value==='')return '';
+  if(typeof value==='number'){
+    const total=Math.round((value%1)*24*60),h=Math.floor(total/60),m=total%60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+  const text=String(value).trim();
+  const ko=text.match(/(\d{1,2})시(?:\s*(\d{1,2})분)?/);
+  if(ko)return `${ko[1].padStart(2,'0')}:${String(ko[2]||0).padStart(2,'0')}`;
+  const hm=text.match(/^(\d{1,2}):(\d{2})/);
+  return hm?`${hm[1].padStart(2,'0')}:${hm[2]}`:text;
+}
+async function fetchWorkbookRows(fileName){
+  if(!window.XLSX)throw new Error('엑셀 읽기 모듈을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.');
+  const url=`./${encodeURIComponent(fileName)}?v=${Date.now()}`;
+  const res=await fetch(url,{cache:'no-store'});
+  if(!res.ok)throw new Error(`${fileName} 불러오기 실패 (${res.status})`);
+  const buf=await res.arrayBuffer();
+  const wb=XLSX.read(buf,{type:'array',cellDates:true});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});
+  const headerIndex=rows.findIndex(r=>r.some(c=>['시작일','날짜'].includes(String(c).trim())));
+  if(headerIndex<0)return [];
+  const headers=rows[headerIndex].map(x=>String(x).trim());
+  return rows.slice(headerIndex+1).filter(r=>r.some(x=>String(x).trim())).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]])));
+}
+async function loadOfficeExcelData(){
+  try{
+    const [noticeRows,eventRows]=await Promise.all([fetchWorkbookRows('공지사항.xlsx'),fetchWorkbookRows('교회일정.xlsx')]);
+    NOTICE_DATA=noticeRows.map(r=>({start:excelDateISO(r['시작일']),end:excelDateISO(r['종료일']),category:String(r['구분']||''),title:String(r['제목']||''),body:String(r['내용']||''),important:String(r['중요']||'N').toUpperCase()})).filter(x=>x.title);
+    EVENT_DATA=eventRows.map(r=>({date:excelDateISO(r['날짜']),time:excelTimeText(r['시간']),category:String(r['구분']||''),title:String(r['행사명']||''),location:String(r['장소']||''),owner:String(r['담당']||''),note:String(r['비고']||'')})).filter(x=>x.title);
+    window.NOTICE_DATA=NOTICE_DATA;window.EVENT_DATA=EVENT_DATA;
+    renderOfficeData();
+    console.info(`엑셀 업데이트 완료: 공지 ${NOTICE_DATA.length}건, 일정 ${EVENT_DATA.length}건`);
+  }catch(err){
+    console.warn('엑셀 업데이트 실패, office-data.js 데이터를 사용합니다.',err);
+    renderOfficeData();
+  }
+}
 function appTodayISO(){return isoDate(new Date())}
 function appFormatDate(iso){
   const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -1657,7 +1712,7 @@ bindChange('#restoreAllInput',e=>{if(e.target.files[0])restoreAllData(e.target.f
 bindClick('#toggleLargeText',toggleLargeText);
 bindClick('#resetLocalData',resetLocalRecords);
 bindClick('#installPwaBtn',installPwa);
-const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;renderOfficeData();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
+const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;renderOfficeData();loadOfficeExcelData();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
   for(let i=1;i<=12;i++)$('#birthdayMonth').insertAdjacentHTML('beforeend',`<option value="${i}">${i}월</option>`);
   $('#birthdayMonth').value=String(new Date().getMonth()+1);
   $('#birthdayMonth').addEventListener('change',renderBirthdayList);
