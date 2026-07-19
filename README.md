@@ -1,4 +1,4 @@
-# GunpoEunhye Corps Family Management System V8.2.5 Final Stable
+# GunpoEunhye Corps Family Management System V8.3.0 Final Stable
 
 ## 운영 원칙
 - GitHub Pages에서 무료로 운영합니다.
@@ -41,7 +41,14 @@
 - PWA 설치
 
 
-## V8.2.5
+## V8.3.0
 - 예배별 방문자 인원 및 메모 저장
 - 전체 참석 인원과 월별·주간 통계에 방문자 포함
 - CSV 내보내기/가져오기 및 GitHub 출석 파일에 방문자 정보 포함
+
+
+## V8.3.0
+- 출석 메뉴 상단에 항상 보이는 방문자 관리 영역
+- 방문자 구분/이름, 인원, 메모를 여러 건 추가·삭제
+- 방문자 합계 및 전체 참석 자동 계산
+- CSV와 GitHub 출석 파일에서 방문자별 기록 보존
