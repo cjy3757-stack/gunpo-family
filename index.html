@@ -6,7 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#9e1b32" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>GunpoEunhye Corps Family Management System V8.6.0</title>
+<title>GunpoEunhye Corps Family Management System V8.5.1</title>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="icon"/>
 <style>
@@ -303,7 +303,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.6.0</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.5.1</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section class="page active" id="home">
 <div class="install-banner" id="installBanner">
@@ -553,7 +553,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </div>
 <div class="finance-warning">재정 자료는 민감한 정보입니다. 공개 GitHub Pages를 사용하는 경우 열람 범위를 신중히 관리하세요.</div>
 </section>
-<section class="page" id="noticePage"><h2 class="section-title">공지사항</h2><div class="card"><div id="allNotices"></div></div></section>
+<section class="page" id="noticePage"><h2 class="section-title">공지사항</h2><div class="card"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><button class="btn" id="refreshOfficeExcel">최신 공지·일정 불러오기</button><small id="officeUpdateStatus">Excel 최신 파일을 확인합니다.</small></div><div id="allNotices"></div></div></section>
 <section class="page" id="eventsPage"><h2 class="section-title">교회 일정</h2><div class="schedule" id="events"></div></section>
 <section class="page" id="morePage"><h2 class="section-title">이용 안내</h2><div class="info"><b>📱 앱처럼 설치</b><br/>안드로이드 Chrome: ⋮ → 앱 설치 또는 홈 화면에 추가<br/>아이폰 Safari: 공유 □↑ → 홈 화면에 추가<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><b>🔄 데이터 업데이트</b><br/>명단이 변경되면 새 ZIP을 Netlify에 다시 업로드하면 같은 주소에서 최신 자료가 표시됩니다.<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><b>🔐 개인정보 보호</b><br/>교회 내부에서만 사용하고 외부 전송이나 공개 게시를 삼가 주세요.</div></section>
 </main>
@@ -568,10 +568,11 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <button data-page="eventsPage"><span>📅</span>일정</button>
 </div></nav>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="data.js"></script>
 <script src="service-data.js"></script>
 <script src="office-data.js"></script>
+<script src="jszip.min.js"></script>
+<script src="office-excel.js"></script>
 <script src="finance-data.js"></script>
 <script>
 const D=window.APP_DATA,$=s=>document.querySelector(s);
@@ -1277,60 +1278,6 @@ function jumpToPage(page){
 
 let NOTICE_DATA=window.NOTICE_DATA||[];
 let EVENT_DATA=window.EVENT_DATA||[];
-
-function excelDateISO(value){
-  if(value===null||value===undefined||value==='')return '';
-  if(value instanceof Date&&!isNaN(value))return value.toISOString().slice(0,10);
-  if(typeof value==='number'&&window.XLSX){
-    const d=XLSX.SSF.parse_date_code(value);
-    if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
-  }
-  const text=String(value).trim();
-  let m=text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
-  if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
-  m=text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
-  if(m)return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
-  return text;
-}
-function excelTimeText(value){
-  if(value===null||value===undefined||value==='')return '';
-  if(typeof value==='number'){
-    const total=Math.round((value%1)*24*60),h=Math.floor(total/60),m=total%60;
-    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-  }
-  const text=String(value).trim();
-  const ko=text.match(/(\d{1,2})시(?:\s*(\d{1,2})분)?/);
-  if(ko)return `${ko[1].padStart(2,'0')}:${String(ko[2]||0).padStart(2,'0')}`;
-  const hm=text.match(/^(\d{1,2}):(\d{2})/);
-  return hm?`${hm[1].padStart(2,'0')}:${hm[2]}`:text;
-}
-async function fetchWorkbookRows(fileName){
-  if(!window.XLSX)throw new Error('엑셀 읽기 모듈을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.');
-  const url=`./${encodeURIComponent(fileName)}?v=${Date.now()}`;
-  const res=await fetch(url,{cache:'no-store'});
-  if(!res.ok)throw new Error(`${fileName} 불러오기 실패 (${res.status})`);
-  const buf=await res.arrayBuffer();
-  const wb=XLSX.read(buf,{type:'array',cellDates:true});
-  const ws=wb.Sheets[wb.SheetNames[0]];
-  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});
-  const headerIndex=rows.findIndex(r=>r.some(c=>['시작일','날짜'].includes(String(c).trim())));
-  if(headerIndex<0)return [];
-  const headers=rows[headerIndex].map(x=>String(x).trim());
-  return rows.slice(headerIndex+1).filter(r=>r.some(x=>String(x).trim())).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]])));
-}
-async function loadOfficeExcelData(){
-  try{
-    const [noticeRows,eventRows]=await Promise.all([fetchWorkbookRows('공지사항.xlsx'),fetchWorkbookRows('교회일정.xlsx')]);
-    NOTICE_DATA=noticeRows.map(r=>({start:excelDateISO(r['시작일']),end:excelDateISO(r['종료일']),category:String(r['구분']||''),title:String(r['제목']||''),body:String(r['내용']||''),important:String(r['중요']||'N').toUpperCase()})).filter(x=>x.title);
-    EVENT_DATA=eventRows.map(r=>({date:excelDateISO(r['날짜']),time:excelTimeText(r['시간']),category:String(r['구분']||''),title:String(r['행사명']||''),location:String(r['장소']||''),owner:String(r['담당']||''),note:String(r['비고']||'')})).filter(x=>x.title);
-    window.NOTICE_DATA=NOTICE_DATA;window.EVENT_DATA=EVENT_DATA;
-    renderOfficeData();
-    console.info(`엑셀 업데이트 완료: 공지 ${NOTICE_DATA.length}건, 일정 ${EVENT_DATA.length}건`);
-  }catch(err){
-    console.warn('엑셀 업데이트 실패, office-data.js 데이터를 사용합니다.',err);
-    renderOfficeData();
-  }
-}
 function appTodayISO(){return isoDate(new Date())}
 function appFormatDate(iso){
   const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -1357,6 +1304,8 @@ function appNoticeHtml(limit){
 function appEventHtml(e){
   return `<article class="event-card"><span class="event-badge">${esc(e.category||'일정')}</span><time>${esc(appFormatDate(e.date))}${e.time?' · '+esc(e.time):''}</time><h4>${esc(e.title)}</h4><p>${e.location?'장소: '+esc(e.location)+'<br>':''}${e.owner?'담당: '+esc(e.owner)+'<br>':''}${esc(e.note||'')}</p></article>`;
 }
+function refreshOfficeDataFromExcel(){NOTICE_DATA=window.NOTICE_DATA||NOTICE_DATA;EVENT_DATA=window.EVENT_DATA||EVENT_DATA;renderOfficeData()}
+window.refreshOfficeDataFromExcel=refreshOfficeDataFromExcel;
 function renderOfficeData(){
   $('#homeNotices').innerHTML=appNoticeHtml(3);
   $('#allNotices').innerHTML=appNoticeHtml();
@@ -1712,7 +1661,8 @@ bindChange('#restoreAllInput',e=>{if(e.target.files[0])restoreAllData(e.target.f
 bindClick('#toggleLargeText',toggleLargeText);
 bindClick('#resetLocalData',resetLocalRecords);
 bindClick('#installPwaBtn',installPwa);
-const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;renderOfficeData();loadOfficeExcelData();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
+bindClick('#refreshOfficeExcel',()=>window.loadLatestOfficeExcel&&window.loadLatestOfficeExcel());
+const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인`;fs[k]=(fs[k]||0)+1});$('#familyKpi').textContent=D.families.length;$('#memberKpi').textContent=D.members.length;$('#avgKpi').textContent=(D.members.length/D.families.length).toFixed(1);$('#groupKpi').textContent=allGroups.length;renderOfficeData();chart($('#familySizeChart'),fs);chart($('#positionChart'),D.stats.positions);chart($('#groupChart'),D.stats.groups);const bm={};for(let i=1;i<=12;i++)bm[`${i}월`]=D.stats.birthMonths[i]||0;chart($('#birthdayChart'),bm,12);
   for(let i=1;i<=12;i++)$('#birthdayMonth').insertAdjacentHTML('beforeend',`<option value="${i}">${i}월</option>`);
   $('#birthdayMonth').value=String(new Date().getMonth()+1);
   $('#birthdayMonth').addEventListener('change',renderBirthdayList);
@@ -1738,7 +1688,7 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   $('#homeAttendanceService').onchange=loadHomeMonthlyAttendance;$('#refreshHomeAttendance').onclick=loadHomeMonthlyAttendance;loadHomeMonthlyAttendance();
   $('#attendanceGoal').value=getGoal();$('#attendanceGoal').onchange=e=>{setGoal(e.target.value);updateAttendanceGoal();loadHomeMonthlyAttendance()};updateAttendanceGoal();
 
-  renderOfficeData();renderFamilies();renderMembers();['familySearch','familyGroup','familySize'].forEach(id=>$('#'+id).addEventListener(id==='familySearch'?'input':'change',renderFamilies));['memberSearch','positionFilter','memberGroup'].forEach(id=>$('#'+id).addEventListener(id==='memberSearch'?'input':'change',renderMembers));if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')}
+  renderOfficeData();if(window.loadLatestOfficeExcel)window.loadLatestOfficeExcel().catch(e=>console.error('Excel 업데이트 오류',e));renderFamilies();renderMembers();['familySearch','familyGroup','familySize'].forEach(id=>$('#'+id).addEventListener(id==='familySearch'?'input':'change',renderFamilies));['memberSearch','positionFilter','memberGroup'].forEach(id=>$('#'+id).addEventListener(id==='memberSearch'?'input':'change',renderMembers));if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')}
 try{
   init();
 }catch(e){
