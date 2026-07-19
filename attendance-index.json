@@ -1,5 +1,11 @@
 {
   "version": 1,
-  "updatedAt": "",
-  "records": []
+  "updatedAt": "2026-07-19T13:12:29.251Z",
+  "records": [
+    {
+      "date": "2026-07-19",
+      "service": "성결예배",
+      "file": "attendance-2026-07-19-성결예배.csv"
+    }
+  ]
 }
