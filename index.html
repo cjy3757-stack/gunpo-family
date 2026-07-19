@@ -6,7 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#9e1b32" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>GunpoEunhye Corps Family Management System V8.4.0</title>
+<title>GunpoEunhye Corps Family Management System V8.5.0</title>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="icon"/>
 <style>
@@ -303,7 +303,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.4.0</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.5.0</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section class="page active" id="home">
 <div class="install-banner" id="installBanner">
@@ -386,10 +386,10 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <label>조회 월 <input id="attendanceCalendarMonth" type="month"/></label>
 <button class="action-btn" id="refreshAllAttendanceStats">전체 통계 새로고침</button>
 <button class="action-btn secondary" id="refreshAttendanceCalendar">월간 출석 불러오기</button>
-<button class="action-btn secondary" id="exportAttendanceIndex">출석목록 JSON 저장</button>
+<button class="action-btn secondary" id="scanGitHubAttendance">GitHub CSV 자동검색</button>
 </div>
-<div class="remote-status" id="attendanceCalendarStatus">GitHub의 attendance-index.json을 읽어 선택한 달의 모든 예배 출석을 표시합니다.</div>
-<div class="stats-index-help">CSV를 GitHub에 올릴 때 <b>attendance-index.json</b>도 함께 올리면 다른 휴대폰에서 월간 통계가 자동 갱신됩니다.</div>
+<div class="remote-status" id="attendanceCalendarStatus">GitHub 저장소의 출석 CSV를 자동으로 검색하여 선택한 달의 모든 예배 출석을 표시합니다.</div>
+<div class="stats-index-help">앞으로는 <b>출석 CSV만 GitHub에 업로드</b>하면 됩니다. 출석목록 JSON을 직접 만들거나 수정할 필요가 없습니다.</div>
 <div class="attendance-calendar" id="attendanceCalendar"></div>
 <div class="monthly-service-summary" id="attendanceMonthlySummary"></div>
 </div>
@@ -1433,27 +1433,73 @@ function registerAttendanceIndexRecord(date,service){
   if(found)found.file=file;else records.push({date,service,file});
   return saveLocalAttendanceIndex(records);
 }
-async function fetchRemoteAttendanceIndex(){
+const GITHUB_REPO_OWNER='cjy3757-stack';
+const GITHUB_REPO_NAME='gunpo-family';
+const GITHUB_BRANCHES=['main','master'];
+
+function attendanceRecordFromPath(path){
+  const clean=String(path||'').replace(/^\.\//,'');
+  const name=clean.split('/').pop();
+  const match=name.match(/^attendance-(\d{4}-\d{2}-\d{2})-(.+)\.csv$/i);
+  if(!match)return null;
+  const serviceSafe=decodeURIComponent(match[2]);
+  const service=ALL_SERVICES.find(x=>safeServiceName(x)===serviceSafe)||serviceSafe;
+  return {date:match[1],service,file:clean};
+}
+async function fetchGitHubAttendanceFiles(){
+  let lastError=null;
+  for(const branch of GITHUB_BRANCHES){
+    try{
+      const api=`https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/git/trees/${branch}?recursive=1&t=${Date.now()}`;
+      const r=await fetch(api,{cache:'no-store',headers:{'Accept':'application/vnd.github+json'}});
+      if(!r.ok){lastError=new Error(`GitHub API ${r.status}`);continue}
+      const data=await r.json();
+      const records=normalizeAttendanceIndex((data.tree||[])
+        .filter(x=>x.type==='blob')
+        .map(x=>attendanceRecordFromPath(x.path))
+        .filter(Boolean));
+      if(records.length){saveLocalAttendanceIndex(records);return records}
+      return [];
+    }catch(e){lastError=e}
+  }
+  throw lastError||new Error('GitHub CSV 목록을 불러오지 못했습니다.');
+}
+async function fetchLegacyAttendanceIndex(){
   try{
     const r=await fetch(`./attendance-index.json?v=${Date.now()}`,{cache:'no-store'});
     if(!r.ok)throw new Error('index not found');
-    const records=normalizeAttendanceIndex(await r.json());
-    saveLocalAttendanceIndex(records);
-    return records;
-  }catch(e){return getLocalAttendanceIndex()}
+    return normalizeAttendanceIndex(await r.json());
+  }catch(e){return []}
 }
-function exportAttendanceIndexJson(){
-  registerAttendanceIndexRecord($('#attendanceDate').value,currentServiceType());
-  const records=getLocalAttendanceIndex();
-  const payload={version:1,updatedAt:new Date().toISOString(),records};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download='attendance-index.json';a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+async function fetchRemoteAttendanceIndex(){
+  try{
+    return await fetchGitHubAttendanceFiles();
+  }catch(e){
+    const legacy=await fetchLegacyAttendanceIndex();
+    if(legacy.length){saveLocalAttendanceIndex(legacy);return legacy}
+    return getLocalAttendanceIndex();
+  }
+}
+async function scanGitHubAttendanceFiles(){
+  const note=$('#attendanceCalendarStatus');
+  note.className='remote-status';
+  note.textContent='GitHub 저장소에서 출석 CSV 파일을 자동 검색하는 중입니다...';
+  try{
+    const records=await fetchGitHubAttendanceFiles();
+    note.className=records.length?'remote-status ok':'remote-status warn';
+    note.textContent=records.length
+      ?`GitHub에서 출석 CSV ${records.length}개를 찾았습니다. 선택한 달의 통계를 불러옵니다.`
+      :'GitHub에서 attendance-날짜-예배명.csv 형식의 출석파일을 찾지 못했습니다.';
+    await loadMonthlyAttendanceCalendar();
+    await loadAttendanceStats();
+  }catch(e){
+    note.className='remote-status warn';
+    note.textContent='GitHub CSV 자동검색에 실패했습니다. 인터넷 연결과 저장소 공개 상태를 확인해 주세요.';
+  }
 }
 async function fetchIndexedAttendanceRecord(record){
   try{
-    const r=await fetch(`./${record.file}?v=${Date.now()}`,{cache:'no-store'});
+    const r=await fetch(`${encodeURI('./'+record.file)}?v=${Date.now()}`,{cache:'no-store'});
     if(!r.ok)return null;
     const parsed=parseAttendanceCsvData(await r.text());
     return {
@@ -1480,7 +1526,7 @@ async function loadMonthlyAttendanceCalendar(){
   const firstDay=new Date(year,mon-1,1).getDay();
 
   note.className='remote-status';
-  note.textContent='attendance-index.json과 월간 출석 CSV를 불러오는 중입니다...';
+  note.textContent='GitHub 저장소에서 출석 CSV 목록과 월간 출석자료를 자동으로 불러오는 중입니다...';
 
   const indexRecords=await fetchRemoteAttendanceIndex();
   const monthRecords=indexRecords.filter(x=>x.date.startsWith(monthPrefix));
@@ -1515,7 +1561,7 @@ async function loadMonthlyAttendanceCalendar(){
   const visitorTotal=loaded.reduce((sum,x)=>sum+x.visitorCount,0);
   if(!monthRecords.length){
     note.className='remote-status warn';
-    note.textContent=`${year}년 ${mon}월 출석목록이 attendance-index.json에 없습니다. CSV와 출석목록 JSON을 GitHub에 함께 올려 주세요.`;
+    note.textContent=`${year}년 ${mon}월 출석 CSV가 GitHub에 없습니다. attendance-날짜-예배명.csv 파일을 업로드해 주세요.`;
   }else{
     note.className='remote-status ok';
     note.textContent=`${year}년 ${mon}월 ${loaded.length}개 예배 · 전체 참석 ${total}명 · 방문자 ${visitorTotal}명입니다.`;
@@ -1601,7 +1647,7 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   if(calendarMonth)calendarMonth.value=new Date().toISOString().slice(0,7);
   bindClick('#refreshAttendanceCalendar',loadMonthlyAttendanceCalendar);
   bindClick('#refreshAllAttendanceStats',refreshAllAttendanceStats);
-  bindClick('#exportAttendanceIndex',exportAttendanceIndexJson);
+  bindClick('#scanGitHubAttendance',scanGitHubAttendanceFiles);
   bindChange('#attendanceCalendarMonth',loadMonthlyAttendanceCalendar);
   $('#statsDate').value=$('#attendanceDate').value;$('#statsService').value='성결예배';$('#careDate').value=$('#attendanceDate').value;$('#careService').value='성결예배';$('#refreshCare').onclick=loadCareManagement;$('#shareCare').onclick=shareCareList;$('#copyCare').onclick=copyCareList;$('#refreshStats').onclick=loadAttendanceStats;$('#statsService').onchange=loadAttendanceStats;$('#statsDate').onchange=loadAttendanceStats;
   $('#homeAttendanceService').onchange=loadHomeMonthlyAttendance;$('#refreshHomeAttendance').onclick=loadHomeMonthlyAttendance;loadHomeMonthlyAttendance();
