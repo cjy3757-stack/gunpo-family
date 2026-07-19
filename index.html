@@ -6,7 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#9e1b32" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>GunpoEunhye Corps Family Management System V8.3.0</title>
+<title>GunpoEunhye Corps Family Management System V8.3.1</title>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="icon"/>
 <style>
@@ -296,11 +296,12 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
  .visitor-row .visitor-note{grid-column:1/-1}.visitor-row .visitor-delete{grid-column:2;grid-row:1}
 }
 
+.service-type-help{grid-column:1/-1;margin-top:2px;color:var(--muted);font-size:12px;line-height:1.5}
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.3.0</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.3.1</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section class="page active" id="home">
 <div class="install-banner" id="installBanner">
@@ -342,6 +343,9 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <option value="구령예배">구령예배</option>
 <option value="수요예배">수요예배</option>
 <option value="금요기도회">금요기도회</option>
+<option value="소그룹모임">소그룹모임</option>
+<option value="부흥집회">부흥집회</option>
+<option value="기타">기타</option>
 </select>
 </label>
 <button class="action-btn secondary" id="refreshHomeAttendance">그래프 새로고침</button>
@@ -389,6 +393,9 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <div class="stats-head">
 <label>예배 <select id="statsService">
 <option value="새벽기도">새벽기도</option><option selected="" value="성결예배">성결예배</option><option value="구령예배">구령예배</option><option value="수요예배">수요예배</option><option value="금요기도회">금요기도회</option>
+<option value="소그룹모임">소그룹모임</option>
+<option value="부흥집회">부흥집회</option>
+<option value="기타">기타</option>
 </select></label>
 <label>기준일 <input id="statsDate" type="date"/></label>
 <button class="action-btn secondary" id="refreshStats">출석 통계 새로고침</button>
@@ -423,9 +430,13 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <option value="구령예배">구령예배</option>
 <option value="수요예배">수요예배</option>
 <option value="금요기도회">금요기도회</option>
+<option value="소그룹모임">소그룹모임</option>
+<option value="부흥집회">부흥집회</option>
+<option value="기타">기타</option>
 </select>
 </label>
 <input id="attendanceSearch" placeholder="이름 또는 가족 검색"/>
+<div class="service-type-help">예배 종류에 소그룹모임·부흥집회·기타가 추가되었습니다. 특별집회는 실제 진행 날짜를 선택해 출석을 기록하세요.</div>
 </div>
 <div class="attendance-summary">
 <div class="att-stat"><b id="attTotal">0</b><span>등록교인</span></div><div class="att-stat"><b id="attPresent">0</b><span>출석</span></div><div class="att-stat"><b id="attOnline">0</b><span>온라인</span></div><div class="att-stat visitor"><b id="attVisitors">0</b><span>방문자</span></div><div class="att-stat total-attendance"><b id="attActualTotal">0</b><span>전체 참석</span></div><div class="att-stat"><b id="attAbsent">0</b><span>불출석</span></div><div class="att-stat"><b id="attUnchecked">0</b><span>미체크</span></div><div class="att-stat"><b id="attRate">0%</b><span>교인 참석률</span></div>
@@ -487,6 +498,9 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <option value="구령예배">구령예배</option>
 <option value="수요예배">수요예배</option>
 <option value="금요기도회">금요기도회</option>
+<option value="소그룹모임">소그룹모임</option>
+<option value="부흥집회">부흥집회</option>
+<option value="기타">기타</option>
 </select>
 </label>
 <label>기준일 <input id="careDate" type="date"/></label>
@@ -1048,7 +1062,7 @@ function exportAbsentCsv(){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`absent-${date}-${safeServiceName(service)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 
-function serviceWeekday(service){return {'새벽기도':0,'성결예배':0,'구령예배':0,'수요예배':3,'금요기도회':5}[service]??0}
+function serviceWeekday(service){return {'새벽기도':0,'성결예배':0,'구령예배':0,'수요예배':3,'금요기도회':5,'소그룹모임':0,'부흥집회':0,'기타':0}[service]??0}
 function isoDate(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
 function occurrenceDates(base,service,count=12){
   const d=new Date(base+'T12:00:00'),wd=serviceWeekday(service);

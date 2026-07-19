@@ -1,7 +1,7 @@
 {
-  "name": "GunpoEunhye Corps Family Management System V8.3.0",
-  "short_name": "GunpoEunhye V8.3.0",
-  "description": "예배별 방문자 명단·인원·메모 관리와 출석 통계",
+  "name": "GunpoEunhye Corps Family Management System V8.3.1",
+  "short_name": "GunpoEunhye V8.3.1",
+  "description": "출석 예배 종류에 소그룹모임, 부흥집회, 기타 추가",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
