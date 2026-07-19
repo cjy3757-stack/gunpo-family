@@ -1,4 +1,4 @@
-# GunpoEunhye Corps Family Management System V8.2.4 Final Stable
+# GunpoEunhye Corps Family Management System V8.2.5 Final Stable
 
 ## 운영 원칙
 - GitHub Pages에서 무료로 운영합니다.
@@ -39,3 +39,9 @@
 - 큰 글씨
 - 백업과 복원
 - PWA 설치
+
+
+## V8.2.5
+- 예배별 방문자 인원 및 메모 저장
+- 전체 참석 인원과 월별·주간 통계에 방문자 포함
+- CSV 내보내기/가져오기 및 GitHub 출석 파일에 방문자 정보 포함

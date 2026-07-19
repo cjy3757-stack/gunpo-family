@@ -6,7 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#9e1b32" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>GunpoEunhye Corps Family Management System V8.2.4</title>
+<title>GunpoEunhye Corps Family Management System V8.2.5</title>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="icon"/>
 <style>
@@ -272,11 +272,20 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 .finance-month-total span{color:var(--muted);font-size:13px;font-weight:700}
 .finance-month-total b{color:var(--navy);font-size:21px}
 
+
+.visitor-attendance-box{margin:14px 0;padding:16px;border:1px solid var(--line);border-radius:16px;background:#fffaf0}
+.visitor-attendance-head h3{margin:0 0 4px}.visitor-attendance-head p{margin:0;color:var(--muted);font-size:13px}
+.visitor-attendance-fields{display:grid;grid-template-columns:150px minmax(220px,1fr) auto;gap:10px;align-items:end;margin-top:12px}
+.visitor-attendance-fields label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700}
+.visitor-attendance-fields input{width:100%;box-sizing:border-box}
+.att-stat.visitor{background:#fff7e6}.att-stat.total-attendance{background:#eef8ff}
+@media(max-width:720px){.visitor-attendance-fields{grid-template-columns:1fr}.visitor-attendance-fields .action-btn{width:100%}}
+
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.2.4</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.2.5</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section class="page active" id="home">
 <div class="install-banner" id="installBanner">
@@ -404,7 +413,22 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <input id="attendanceSearch" placeholder="이름 또는 가족 검색"/>
 </div>
 <div class="attendance-summary">
-<div class="att-stat"><b id="attTotal">0</b><span>전체</span></div><div class="att-stat"><b id="attPresent">0</b><span>출석</span></div><div class="att-stat"><b id="attOnline">0</b><span>온라인</span></div><div class="att-stat"><b id="attAbsent">0</b><span>불출석</span></div><div class="att-stat"><b id="attUnchecked">0</b><span>미체크</span></div><div class="att-stat"><b id="attRate">0%</b><span>참석률</span></div>
+<div class="att-stat"><b id="attTotal">0</b><span>등록교인</span></div><div class="att-stat"><b id="attPresent">0</b><span>출석</span></div><div class="att-stat"><b id="attOnline">0</b><span>온라인</span></div><div class="att-stat visitor"><b id="attVisitors">0</b><span>방문자</span></div><div class="att-stat total-attendance"><b id="attActualTotal">0</b><span>전체 참석</span></div><div class="att-stat"><b id="attAbsent">0</b><span>불출석</span></div><div class="att-stat"><b id="attUnchecked">0</b><span>미체크</span></div><div class="att-stat"><b id="attRate">0%</b><span>교인 참석률</span></div>
+</div>
+<div class="visitor-attendance-box">
+  <div class="visitor-attendance-head">
+    <div><h3>👋 방문자 출석</h3><p>교인명단에 없는 친척·지인·새가족 방문자를 입력합니다.</p></div>
+  </div>
+  <div class="visitor-attendance-fields">
+    <label>방문자 인원
+      <input id="visitorCount" type="number" min="0" step="1" inputmode="numeric" value="0"/>
+    </label>
+    <label class="visitor-memo-label">방문자 메모
+      <input id="visitorMemo" type="text" placeholder="예: 김○○ 집사 가족 2명, 새가족 1명"/>
+    </label>
+    <button class="action-btn" id="saveVisitors">방문자 저장</button>
+  </div>
+  <div class="remote-status" id="visitorStatus">방문자는 선택한 날짜와 예배에만 저장되며 전체 참석 인원과 통계에 포함됩니다.</div>
 </div>
 <div class="att-view-tabs">
 <button class="active" data-att-view="all">전체</button><button data-att-view="present">출석자</button><button data-att-view="online">온라인</button><button data-att-view="absent">불출석자</button><button data-att-view="unchecked">미체크</button>
@@ -623,6 +647,34 @@ function getAttendance(){
   try{return JSON.parse(localStorage.getItem(attendanceKey($('#attendanceDate').value))||'{}')}catch(e){return{}}
 }
 function saveAttendance(obj){localStorage.setItem(attendanceKey($('#attendanceDate').value),JSON.stringify(obj))}
+function visitorKey(date){return 'gunpoVisitors:'+date+':'+currentServiceType()}
+function getVisitorData(date=$('#attendanceDate').value,service=currentServiceType()){
+  try{
+    const raw=localStorage.getItem('gunpoVisitors:'+date+':'+service);
+    const data=raw?JSON.parse(raw):{};
+    return {count:Math.max(0,Number(data.count)||0),memo:String(data.memo||'')};
+  }catch(e){return {count:0,memo:''}}
+}
+function saveVisitorData(data,date=$('#attendanceDate').value,service=currentServiceType()){
+  const normalized={count:Math.max(0,Math.floor(Number(data.count)||0)),memo:String(data.memo||'').trim()};
+  localStorage.setItem('gunpoVisitors:'+date+':'+service,JSON.stringify(normalized));
+  return normalized;
+}
+function syncVisitorInputs(){
+  const data=getVisitorData();
+  const countEl=$('#visitorCount'),memoEl=$('#visitorMemo');
+  if(countEl)countEl.value=data.count;
+  if(memoEl)memoEl.value=data.memo;
+}
+function saveVisitorsFromForm(){
+  const data=saveVisitorData({count:$('#visitorCount').value,memo:$('#visitorMemo').value});
+  const status=$('#visitorStatus');
+  if(status){
+    status.className='remote-status ok';
+    status.textContent=`${$('#attendanceDate').value} ${currentServiceType()} 방문자 ${data.count}명을 저장했습니다.${data.memo?' · '+data.memo:''}`;
+  }
+  renderAttendance();
+}
 function setAttendance(name,status){
   const obj=getAttendance();
   if(status)obj[name]=status;else delete obj[name];
@@ -696,26 +748,35 @@ function safeServiceName(name){
 function attendanceCsvFilename(date){
   return `attendance-${date}-${safeServiceName(currentServiceType())}.csv`;
 }
-function parseAttendanceCsvText(text){
+function parseCsvLine(line){
+  const cols=[];let cur='',quote=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'&&line[i+1]==='"'){cur+='"';i++}
+    else if(c==='"'){quote=!quote}
+    else if(c===','&&!quote){cols.push(cur);cur=''}
+    else cur+=c;
+  }
+  cols.push(cur);return cols;
+}
+function parseAttendanceCsvData(text){
   const lines=String(text||'').replace(/^\ufeff/,'').split(/\r?\n/).filter(Boolean);
-  const obj={};
+  const attendance={};let visitorCount=0,visitorMemo='';
   lines.slice(1).forEach(line=>{
-    const cols=[];let cur='',quote=false;
-    for(let i=0;i<line.length;i++){
-      const c=line[i];
-      if(c==='"'&&line[i+1]==='"'){cur+='"';i++}
-      else if(c==='"'){quote=!quote}
-      else if(c===','&&!quote){cols.push(cur);cur=''}
-      else cur+=c;
-    }
-    cols.push(cur);
+    const cols=parseCsvLine(line);
     const name=cols[5]||cols[4]||cols[3]||'';
     const status=cols[7]||cols[6]||cols[5]||'';
-    const mapped={'출석':'present','온라인':'online','결석':'absent','present':'present','online':'online','absent':'absent'}[status];
-    if(name&&mapped)obj[name]=mapped;
+    if(status==='방문자'||cols[2]==='방문자'){
+      visitorCount=Math.max(0,Number(cols[3])||0);
+      visitorMemo=String(cols[5]||cols[4]||'');
+      return;
+    }
+    const mapped={'출석':'present','온라인':'online','결석':'absent','불출석':'absent','present':'present','online':'online','absent':'absent'}[status];
+    if(name&&mapped)attendance[name]=mapped;
   });
-  return obj;
+  return {attendance,visitorCount,visitorMemo};
 }
+function parseAttendanceCsvText(text){return parseAttendanceCsvData(text).attendance}
 async function loadGitHubAttendance(force=false){
   const date=$('#attendanceDate').value;
   const statusEl=$('#remoteAttendanceStatus');
@@ -731,8 +792,10 @@ async function loadGitHubAttendance(force=false){
   try{
     const response=await fetch(`./${attendanceCsvFilename(date)}?v=${Date.now()}`,{cache:'no-store'});
     if(!response.ok)throw new Error('not found');
-    const obj=parseAttendanceCsvText(await response.text());
-    saveAttendance(obj);
+    const parsed=parseAttendanceCsvData(await response.text());
+    saveAttendance(parsed.attendance);
+    saveVisitorData({count:parsed.visitorCount,memo:parsed.visitorMemo});
+    syncVisitorInputs();
     renderAttendance();
     statusEl.className='remote-status ok';
     statusEl.textContent=`GitHub의 ${date} ${currentServiceType()} 출석 기록을 불러왔습니다.`;
@@ -752,6 +815,8 @@ function exportAttendanceCsv(){
   const date=$('#attendanceDate').value,obj=getAttendance();
   const lines=[['예배일','예배종류','소속1','가족코드','가정','성명','직분','상태']];
   D.families.forEach(f=>f.members.forEach(m=>lines.push([date,currentServiceType(),m.group1||'소속 미지정',f.code,f.label,m.name,m.position||'',({present:'출석',online:'온라인',absent:'결석'}[obj[m.name]]||'미체크')])));
+  const visitor=getVisitorData();
+  if(visitor.count>0||visitor.memo)lines.push([date,currentServiceType(),'방문자',visitor.count,'방문자',visitor.memo,'','방문자']);
   const csv='\ufeff'+lines.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download=attendanceCsvFilename(date);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
@@ -759,8 +824,10 @@ function exportAttendanceCsv(){
 function importAttendanceCsv(file){
   const reader=new FileReader();
   reader.onload=()=>{
-    const obj=parseAttendanceCsvText(reader.result);
-    saveAttendance(obj);
+    const parsed=parseAttendanceCsvData(reader.result);
+    saveAttendance(parsed.attendance);
+    saveVisitorData({count:parsed.visitorCount,memo:parsed.visitorMemo});
+    syncVisitorInputs();
     renderAttendance();
     const statusEl=$('#remoteAttendanceStatus');
     statusEl.className='remote-status ok';
@@ -820,7 +887,8 @@ function renderAttendance(){
     cards.push(`<article class="att-group open"><div class="att-group-head"><div class="att-group-title"><h4>${esc(group)}</h4><small>${filtered.length}명 · 출석 ${gp} · 온라인 ${go} · 불출석 ${ga} · 미체크 ${gu}</small></div><div class="group-rate">${rate}%</div><div class="chev">⌄</div></div><div class="att-group-body"><div class="att-group-actions" style="padding:10px 15px;border-bottom:1px solid var(--line)"><button class="mini-btn present" onclick="markGroup('${esc(group)}','present')">그룹 전체 출석</button><button class="mini-btn online" onclick="markGroup('${esc(group)}','online')">그룹 전체 온라인</button><button class="mini-btn absent" onclick="markGroup('${esc(group)}','absent')">그룹 전체 불출석</button></div>${rows}</div></article>`);
   });
   $('#attendanceList').innerHTML=cards.join('')||'<div class="empty">검색 결과가 없습니다.</div>';
-  $('#attTotal').textContent=total;$('#attPresent').textContent=present;$('#attOnline').textContent=online;$('#attAbsent').textContent=absent;$('#attUnchecked').textContent=unchecked;$('#attRate').textContent=total?Math.round((present+online)/total*100)+'%':'0%';
+  const visitor=getVisitorData();
+  $('#attTotal').textContent=total;$('#attPresent').textContent=present;$('#attOnline').textContent=online;$('#attVisitors').textContent=visitor.count;$('#attActualTotal').textContent=present+online+visitor.count;$('#attAbsent').textContent=absent;$('#attUnchecked').textContent=unchecked;$('#attRate').textContent=total?Math.round((present+online)/total*100)+'%':'0%';
   document.querySelectorAll('.att-group-head').forEach(h=>h.onclick=e=>{if(e.target.closest('button'))return;h.parentElement.classList.toggle('open')});
   renderCompactAttendance();
 }
@@ -841,8 +909,12 @@ function presentShareText(){
   });
   const presentCount=rows.filter(x=>x.status==='present').length;
   const onlineCount=rows.filter(x=>x.status==='online').length;
-  text+=`합계: 출석 ${presentCount}명`;
+  const visitor=getVisitorData();
+  text+=`합계: 교인 출석 ${presentCount}명`;
   if(onlineCount)text+=`, 온라인 ${onlineCount}명`;
+  if(visitor.count)text+=`, 방문자 ${visitor.count}명`;
+  text+=`\n전체 참석: ${presentCount+onlineCount+visitor.count}명`;
+  if(visitor.memo)text+=`\n방문자 메모: ${visitor.memo}`;
   return text;
 }
 async function sharePresentList(){
@@ -907,8 +979,17 @@ function occurrenceDates(base,service,count=12){
 async function fetchAttendanceCount(date,service){
   if(date>appTodayISO())return null;
   const key='gunpoAttendance:'+date+':'+service;
-  try{const local=JSON.parse(localStorage.getItem(key)||'{}');if(Object.keys(local).length)return Object.values(local).filter(x=>x==='present'||x==='online').length}catch(e){}
-  try{const r=await fetch(`./attendance-${date}-${safeServiceName(service)}.csv?v=${Date.now()}`,{cache:'no-store'});if(!r.ok)return null;const o=parseAttendanceCsvText(await r.text());return Object.values(o).filter(x=>x==='present'||x==='online').length}catch(e){return null}
+  try{
+    const local=JSON.parse(localStorage.getItem(key)||'{}');
+    const visitor=getVisitorData(date,service).count;
+    if(Object.keys(local).length||visitor)return Object.values(local).filter(x=>x==='present'||x==='online').length+visitor;
+  }catch(e){}
+  try{
+    const r=await fetch(`./attendance-${date}-${safeServiceName(service)}.csv?v=${Date.now()}`,{cache:'no-store'});
+    if(!r.ok)return null;
+    const parsed=parseAttendanceCsvData(await r.text());
+    return Object.values(parsed.attendance).filter(x=>x==='present'||x==='online').length+parsed.visitorCount;
+  }catch(e){return null}
 }
 async function loadAttendanceStats(){
   const service=$('#statsService').value,base=$('#statsDate').value,status=$('#statsLoadStatus');
@@ -1337,12 +1418,12 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   const months=[...new Set(S.map(x=>x.date.slice(5,7)))].sort();months.forEach(m=>$('#serviceMonth').insertAdjacentHTML('beforeend',`<option value="${m}">${Number(m)}월</option>`));const currentMonth=String(new Date().getMonth()+1).padStart(2,'0');$('#serviceMonth').value=months.includes(currentMonth)?currentMonth:'';
   $('#serviceMonth').addEventListener('change',renderServices);$('#serviceSearch').addEventListener('input',renderServices);renderServices();
   const now=new Date(),sunday=new Date(now);sunday.setDate(now.getDate()-now.getDay());$('#attendanceDate').value=sunday.toISOString().slice(0,10);
-  $('#attendanceDate').addEventListener('change',()=>{renderAttendanceExtras();loadGitHubAttendance(false)});
-  $('#attendanceService').addEventListener('change',()=>{renderAttendanceExtras();loadGitHubAttendance(false)});$('#attendanceSearch').addEventListener('input',renderAttendance);
+  $('#attendanceDate').addEventListener('change',()=>{renderAttendanceExtras();syncVisitorInputs();loadGitHubAttendance(false)});
+  $('#attendanceService').addEventListener('change',()=>{renderAttendanceExtras();syncVisitorInputs();loadGitHubAttendance(false)});$('#attendanceSearch').addEventListener('input',renderAttendance);
   $('#markAllPresent').onclick=()=>{const o={};D.members.forEach(m=>o[m.name]='present');saveAttendance(o);renderAttendance()};
-  $('#clearAttendance').onclick=()=>{if(confirm('선택한 날짜의 출석 기록을 모두 지울까요?')){localStorage.removeItem(attendanceKey($('#attendanceDate').value));renderAttendance()}};
+  $('#clearAttendance').onclick=()=>{if(confirm('선택한 날짜의 교인 출석과 방문자 기록을 모두 지울까요?')){localStorage.removeItem(attendanceKey($('#attendanceDate').value));localStorage.removeItem(visitorKey($('#attendanceDate').value));syncVisitorInputs();renderAttendance()}};
   $('#loadGitHubAttendance').onclick=()=>loadGitHubAttendance(true);$('#exportAttendance').onclick=exportAttendanceCsv;$('#importAttendanceBtn').onclick=()=>$('#importAttendance').click();
-  $('#importAttendance').onchange=e=>{if(e.target.files[0])importAttendanceCsv(e.target.files[0])};renderAttendanceExtras();loadGitHubAttendance(false);
+  $('#importAttendance').onchange=e=>{if(e.target.files[0])importAttendanceCsv(e.target.files[0])};$('#saveVisitors').onclick=saveVisitorsFromForm;syncVisitorInputs();renderAttendanceExtras();loadGitHubAttendance(false);
   document.querySelectorAll('[data-att-view]').forEach(b=>b.onclick=()=>{attendanceView=b.dataset.attView;renderCompactAttendance()});
   $('#sharePresent').onclick=sharePresentList;$('#copyPresent').onclick=copyPresentList;$('#shareAbsent').onclick=shareAbsentList;$('#copyAbsent').onclick=copyAbsentList;$('#exportAbsent').onclick=exportAbsentCsv;
   const calendarMonth=$('#attendanceCalendarMonth');
