@@ -1,11 +1,16 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-19T13:12:29.251Z",
+  "updatedAt": "2026-07-19T13:18:49.181Z",
   "records": [
     {
       "date": "2026-07-19",
       "service": "성결예배",
       "file": "attendance-2026-07-19-성결예배.csv"
+    },
+    {
+      "date": "2026-07-19",
+      "service": "소그룹모임",
+      "file": "attendance-2026-07-19-소그룹모임.csv"
     }
   ]
 }
