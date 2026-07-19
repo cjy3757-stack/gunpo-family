@@ -6,7 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#9e1b32" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>GunpoEunhye Corps Family Management System V8.3.1</title>
+<title>GunpoEunhye Corps Family Management System V8.4.0</title>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="icon"/>
 <style>
@@ -297,11 +297,13 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 }
 
 .service-type-help{grid-column:1/-1;margin-top:2px;color:var(--muted);font-size:12px;line-height:1.5}
+
+.stats-index-help{margin:10px 0 12px;padding:11px 13px;border-radius:12px;background:#f7f8fb;color:var(--muted);font-size:13px;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.3.1</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V8.4.0</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section class="page active" id="home">
 <div class="install-banner" id="installBanner">
@@ -382,9 +384,12 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 <h3>🗓 월간 전체 예배 출석현황</h3>
 <div class="stats-head">
 <label>조회 월 <input id="attendanceCalendarMonth" type="month"/></label>
+<button class="action-btn" id="refreshAllAttendanceStats">전체 통계 새로고침</button>
 <button class="action-btn secondary" id="refreshAttendanceCalendar">월간 출석 불러오기</button>
+<button class="action-btn secondary" id="exportAttendanceIndex">출석목록 JSON 저장</button>
 </div>
-<div class="remote-status" id="attendanceCalendarStatus">선택한 달의 모든 예배 출석을 달력 형태로 표시합니다.</div>
+<div class="remote-status" id="attendanceCalendarStatus">GitHub의 attendance-index.json을 읽어 선택한 달의 모든 예배 출석을 표시합니다.</div>
+<div class="stats-index-help">CSV를 GitHub에 올릴 때 <b>attendance-index.json</b>도 함께 올리면 다른 휴대폰에서 월간 통계가 자동 갱신됩니다.</div>
 <div class="attendance-calendar" id="attendanceCalendar"></div>
 <div class="monthly-service-summary" id="attendanceMonthlySummary"></div>
 </div>
@@ -907,6 +912,7 @@ async function loadGitHubAttendance(force=false){
 
 function exportAttendanceCsv(){
   const date=$('#attendanceDate').value,obj=getAttendance();
+  registerAttendanceIndexRecord(date,currentServiceType());
   const lines=[['예배일','예배종류','소속1','가족코드','가정','성명','직분','상태']];
   D.families.forEach(f=>f.members.forEach(m=>lines.push([date,currentServiceType(),m.group1||'소속 미지정',f.code,f.label,m.name,m.position||'',({present:'출석',online:'온라인',absent:'결석'}[obj[m.name]]||'미체크')])));
   getVisitorEntries().forEach(v=>lines.push([date,currentServiceType(),'방문자',v.count,'방문자',v.name,v.memo,'방문자']));
@@ -1394,7 +1400,73 @@ function renderFinanceDashboard(){
 
 
 
-const ALL_SERVICES=['새벽기도','성결예배','구령예배','수요예배','금요기도회'];
+const ALL_SERVICES=['새벽기도','성결예배','구령예배','수요예배','금요기도회','소그룹모임','부흥집회','기타'];
+
+
+function attendanceIndexLocalKey(){return 'gunpoAttendanceIndex'}
+function normalizeAttendanceIndex(data){
+  const arr=Array.isArray(data)?data:(Array.isArray(data.records)?data.records:[]);
+  const seen=new Set();
+  return arr.map(x=>({
+    date:String(x.date||'').slice(0,10),
+    service:String(x.service||'').trim(),
+    file:String(x.file||'').trim()
+  })).filter(x=>{
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(x.date)||!x.service)return false;
+    if(!x.file)x.file=`attendance-${x.date}-${safeServiceName(x.service)}.csv`;
+    const key=x.date+'|'+x.service;
+    if(seen.has(key))return false;seen.add(key);return true;
+  }).sort((a,b)=>a.date.localeCompare(b.date)||a.service.localeCompare(b.service,'ko'));
+}
+function getLocalAttendanceIndex(){
+  try{return normalizeAttendanceIndex(JSON.parse(localStorage.getItem(attendanceIndexLocalKey())||'[]'))}catch(e){return []}
+}
+function saveLocalAttendanceIndex(records){
+  const normalized=normalizeAttendanceIndex(records);
+  localStorage.setItem(attendanceIndexLocalKey(),JSON.stringify(normalized));
+  return normalized;
+}
+function registerAttendanceIndexRecord(date,service){
+  const records=getLocalAttendanceIndex();
+  const file=`attendance-${date}-${safeServiceName(service)}.csv`;
+  const found=records.find(x=>x.date===date&&x.service===service);
+  if(found)found.file=file;else records.push({date,service,file});
+  return saveLocalAttendanceIndex(records);
+}
+async function fetchRemoteAttendanceIndex(){
+  try{
+    const r=await fetch(`./attendance-index.json?v=${Date.now()}`,{cache:'no-store'});
+    if(!r.ok)throw new Error('index not found');
+    const records=normalizeAttendanceIndex(await r.json());
+    saveLocalAttendanceIndex(records);
+    return records;
+  }catch(e){return getLocalAttendanceIndex()}
+}
+function exportAttendanceIndexJson(){
+  registerAttendanceIndexRecord($('#attendanceDate').value,currentServiceType());
+  const records=getLocalAttendanceIndex();
+  const payload={version:1,updatedAt:new Date().toISOString(),records};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='attendance-index.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+async function fetchIndexedAttendanceRecord(record){
+  try{
+    const r=await fetch(`./${record.file}?v=${Date.now()}`,{cache:'no-store'});
+    if(!r.ok)return null;
+    const parsed=parseAttendanceCsvData(await r.text());
+    return {
+      date:record.date,service:record.service,
+      count:Object.values(parsed.attendance).filter(x=>x==='present'||x==='online').length+parsed.visitorCount,
+      visitorCount:parsed.visitorCount
+    };
+  }catch(e){return null}
+}
+async function refreshAllAttendanceStats(){
+  await loadMonthlyAttendanceCalendar();
+  await loadAttendanceStats();
+}
 
 async function loadMonthlyAttendanceCalendar(){
   const monthEl=$('#attendanceCalendarMonth');
@@ -1403,46 +1475,52 @@ async function loadMonthlyAttendanceCalendar(){
   if(!monthEl||!root||!note||!monthEl.value)return;
 
   const [year,mon]=monthEl.value.split('-').map(Number);
+  const monthPrefix=monthEl.value;
   const days=new Date(year,mon,0).getDate();
   const firstDay=new Date(year,mon-1,1).getDay();
 
   note.className='remote-status';
-  note.textContent='월간 전체 예배 출석을 불러오는 중입니다...';
+  note.textContent='attendance-index.json과 월간 출석 CSV를 불러오는 중입니다...';
+
+  const indexRecords=await fetchRemoteAttendanceIndex();
+  const monthRecords=indexRecords.filter(x=>x.date.startsWith(monthPrefix));
+  const loaded=(await Promise.all(monthRecords.map(fetchIndexedAttendanceRecord))).filter(Boolean);
 
   const records={},summary={};
   ALL_SERVICES.forEach(service=>summary[service]=0);
-
-  for(let day=1;day<=days;day++){
-    const date=`${year}-${String(mon).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const results=await Promise.all(ALL_SERVICES.map(async service=>({
-      service,
-      count:await fetchAttendanceCount(date,service)
-    })));
-    records[day]=results.filter(x=>x.count!==null&&x.count>0);
-    records[day].forEach(x=>summary[x.service]+=x.count);
-  }
+  loaded.forEach(x=>{
+    const day=Number(x.date.slice(8,10));
+    if(!records[day])records[day]=[];
+    if(x.count>0)records[day].push(x);
+    if(summary[x.service]===undefined)summary[x.service]=0;
+    summary[x.service]+=x.count;
+  });
 
   let output=['일','월','화','수','목','금','토'].map(x=>`<div class="calendar-head">${x}</div>`).join('');
   for(let i=0;i<firstDay;i++)output+='<div class="calendar-day empty"></div>';
-
   for(let day=1;day<=days;day++){
-    const items=records[day]||[];
+    const items=(records[day]||[]).sort((a,b)=>ALL_SERVICES.indexOf(a.service)-ALL_SERVICES.indexOf(b.service));
     const total=items.reduce((sum,item)=>sum+item.count,0);
-    output+=`<div class="calendar-day"><div class="calendar-date">${day}</div>${items.map(item=>`<div class="calendar-service">${item.service} ${item.count}명</div>`).join('')}${total?`<div class="calendar-total">합계 ${total}명</div>`:''}</div>`;
+    output+=`<div class="calendar-day"><div class="calendar-date">${day}</div>${items.map(item=>`<div class="calendar-service">${esc(item.service)} ${item.count}명${item.visitorCount?` <small>(방문 ${item.visitorCount})</small>`:''}</div>`).join('')}${total?`<div class="calendar-total">합계 ${total}명</div>`:''}</div>`;
   }
-
   root.innerHTML=output;
 
   const summaryRoot=$('#attendanceMonthlySummary');
   if(summaryRoot){
-    summaryRoot.innerHTML=ALL_SERVICES.map(service=>`<div><span>${service}</span><b>${summary[service]}명</b></div>`).join('');
+    const services=[...new Set([...ALL_SERVICES,...Object.keys(summary)])];
+    summaryRoot.innerHTML=services.map(service=>`<div><span>${esc(service)}</span><b>${summary[service]||0}명</b></div>`).join('');
   }
 
-  const total=Object.values(summary).reduce((sum,value)=>sum+value,0);
-  note.className='remote-status ok';
-  note.textContent=`${year}년 ${mon}월 전체 예배 출석 합계 ${total}명입니다.`;
+  const total=loaded.reduce((sum,x)=>sum+x.count,0);
+  const visitorTotal=loaded.reduce((sum,x)=>sum+x.visitorCount,0);
+  if(!monthRecords.length){
+    note.className='remote-status warn';
+    note.textContent=`${year}년 ${mon}월 출석목록이 attendance-index.json에 없습니다. CSV와 출석목록 JSON을 GitHub에 함께 올려 주세요.`;
+  }else{
+    note.className='remote-status ok';
+    note.textContent=`${year}년 ${mon}월 ${loaded.length}개 예배 · 전체 참석 ${total}명 · 방문자 ${visitorTotal}명입니다.`;
+  }
 }
-
 
 function showAppDiagnostic(message){
   const home=document.getElementById('home');
@@ -1522,6 +1600,8 @@ const fs={};D.families.forEach(f=>{const k=f.size>=4?'4인 이상':`${f.size}인
   const calendarMonth=$('#attendanceCalendarMonth');
   if(calendarMonth)calendarMonth.value=new Date().toISOString().slice(0,7);
   bindClick('#refreshAttendanceCalendar',loadMonthlyAttendanceCalendar);
+  bindClick('#refreshAllAttendanceStats',refreshAllAttendanceStats);
+  bindClick('#exportAttendanceIndex',exportAttendanceIndexJson);
   bindChange('#attendanceCalendarMonth',loadMonthlyAttendanceCalendar);
   $('#statsDate').value=$('#attendanceDate').value;$('#statsService').value='성결예배';$('#careDate').value=$('#attendanceDate').value;$('#careService').value='성결예배';$('#refreshCare').onclick=loadCareManagement;$('#shareCare').onclick=shareCareList;$('#copyCare').onclick=copyCareList;$('#refreshStats').onclick=loadAttendanceStats;$('#statsService').onchange=loadAttendanceStats;$('#statsDate').onchange=loadAttendanceStats;
   $('#homeAttendanceService').onchange=loadHomeMonthlyAttendance;$('#refreshHomeAttendance').onclick=loadHomeMonthlyAttendance;loadHomeMonthlyAttendance();
