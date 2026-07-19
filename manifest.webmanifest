@@ -1,6 +1,6 @@
 {
-  "name": "GunpoEunhye Corps Family Management System V8.5.0",
-  "short_name": "GunpoEunhye V8.5.0",
+  "name": "GunpoEunhye Corps Family Management System V8.5.1",
+  "short_name": "GunpoEunhye V8.5.1",
   "description": "GitHub 출석 CSV 자동검색 기반 월간 전체 예배 출석 통계",
   "start_url": "./index.html",
   "scope": "./",

@@ -1,8 +1,8 @@
-# GunpoEunhye Corps Family Management System V8.5.0
+# GunpoEunhye Corps Family Management System V8.5.1
 
 ## 출석 통계 자동화
 
-V8.5.0부터 `attendance-index.json`을 직접 작성하거나 수정하지 않습니다.
+V8.5.1부터 `attendance-index.json`을 직접 작성하거나 수정하지 않습니다.
 
 1. 앱에서 날짜와 예배 종류를 선택해 출석을 체크합니다.
 2. 날짜별 CSV를 저장합니다.
