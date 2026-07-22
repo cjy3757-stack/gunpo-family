@@ -6,7 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#9e1b32" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>GunpoEunhye Corps Family Management System V9.0</title>
+<title>GunpoEunhye Corps Family Management System V9.1</title>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="icon"/>
 <style>
@@ -233,15 +233,19 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 .calendar-date{font-weight:900;color:var(--navy);margin-bottom:5px}
 .calendar-service{background:#eef2f6;border-radius:7px;padding:4px 5px;margin:3px 0;line-height:1.35}
 .calendar-total{margin-top:5px;font-weight:900;color:var(--red)}
-.monthly-service-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}
-.monthly-service-summary div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
-.monthly-service-summary span{display:block;font-size:11px;color:var(--muted)}
-.monthly-service-summary b{display:block;font-size:18px;color:var(--navy);margin-top:4px}
+.monthly-service-summary{margin-top:12px;overflow-x:auto}
+.monthly-service-table{width:100%;border-collapse:separate;border-spacing:0;min-width:560px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.monthly-service-table th,.monthly-service-table td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--line);font-size:13px}
+.monthly-service-table th{background:#f5f7fa;color:var(--navy);font-weight:800}
+.monthly-service-table td:first-child,.monthly-service-table th:first-child{text-align:left;padding-left:14px}
+.monthly-service-table tr:last-child td{border-bottom:0}
+.monthly-service-table .total-row td{font-weight:800;background:#faf7f2}
+.monthly-service-table .online-cell{font-weight:700}
+.monthly-service-table .visitor-cell{font-weight:700}
 @media(max-width:760px){
   .attendance-calendar{gap:3px}
   .calendar-day{min-height:88px;padding:4px;font-size:9px}
   .calendar-head{font-size:10px;padding:4px}
-  .monthly-service-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 
@@ -303,7 +307,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V9.0</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V9.1</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section class="page active" id="home">
 <div class="install-banner" id="installBanner">
@@ -407,8 +411,8 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </div>
 <div class="remote-status" id="statsLoadStatus">GitHub에 보관된 실제 날짜·예배별 출석 CSV를 기준으로 최근 출석을 분석합니다.</div>
 <div class="stats-kpis">
-<div class="stats-kpi"><span>이번 회차 참석</span><b id="statsCurrent">-</b></div>
-<div class="stats-kpi"><span>전회 대비</span><b id="statsPrev">-</b></div>
+<div class="stats-kpi"><span>이번 주간 참석</span><b id="statsCurrent">-</b></div>
+<div class="stats-kpi"><span>전 주간 대비</span><b id="statsPrev">-</b></div>
 <div class="stats-kpi"><span>전월 평균 대비</span><b id="statsMonth">-</b></div>
 <div class="stats-kpi"><span>최근 평균</span><b id="statsAverage">-</b></div>
 </div>
@@ -1506,10 +1510,14 @@ async function fetchIndexedAttendanceRecord(record){
     const r=await fetch(`${encodeURI('./'+record.file)}?v=${Date.now()}`,{cache:'no-store'});
     if(!r.ok)return null;
     const parsed=parseAttendanceCsvData(await r.text());
+    const statuses=Object.values(parsed.attendance);
+    const presentCount=statuses.filter(x=>x==='present').length;
+    const onlineCount=statuses.filter(x=>x==='online').length;
+    const visitorCount=parsed.visitorCount;
     return {
       date:record.date,service:record.service,
-      count:Object.values(parsed.attendance).filter(x=>x==='present'||x==='online').length+parsed.visitorCount,
-      visitorCount:parsed.visitorCount
+      presentCount,onlineCount,visitorCount,
+      count:presentCount+onlineCount+visitorCount
     };
   }catch(e){return null}
 }
@@ -1567,13 +1575,16 @@ async function loadMonthlyAttendanceCalendar(){
   }
 
   const records={},summary={};
-  ALL_SERVICES.forEach(service=>summary[service]=0);
+  ALL_SERVICES.forEach(service=>summary[service]={present:0,online:0,visitor:0,total:0});
   loaded.forEach(x=>{
     const day=Number(x.date.slice(8,10));
     if(!records[day])records[day]=[];
     if(x.count>0)records[day].push(x);
-    if(summary[x.service]===undefined)summary[x.service]=0;
-    summary[x.service]+=x.count;
+    if(!summary[x.service])summary[x.service]={present:0,online:0,visitor:0,total:0};
+    summary[x.service].present+=x.presentCount||0;
+    summary[x.service].online+=x.onlineCount||0;
+    summary[x.service].visitor+=x.visitorCount||0;
+    summary[x.service].total+=x.count||0;
   });
 
   let output=['일','월','화','수','목','금','토'].map(x=>`<div class="calendar-head">${x}</div>`).join('');
@@ -1581,14 +1592,18 @@ async function loadMonthlyAttendanceCalendar(){
   for(let day=1;day<=days;day++){
     const items=(records[day]||[]).sort((a,b)=>ALL_SERVICES.indexOf(a.service)-ALL_SERVICES.indexOf(b.service));
     const total=items.reduce((sum,item)=>sum+item.count,0);
-    output+=`<div class="calendar-day"><div class="calendar-date">${day}</div>${items.map(item=>`<div class="calendar-service">${esc(item.service)} ${item.count}명${item.visitorCount?` <small>(방문 ${item.visitorCount})</small>`:''}</div>`).join('')}${total?`<div class="calendar-total">합계 ${total}명</div>`:''}</div>`;
+    output+=`<div class="calendar-day"><div class="calendar-date">${day}</div>${items.map(item=>`<div class="calendar-service"><b>${esc(item.service)}</b><br><small>출석 ${item.presentCount||0} · 온라인 ${item.onlineCount||0} · 방문 ${item.visitorCount||0} · 합계 ${item.count||0}</small></div>`).join('')}${total?`<div class="calendar-total">합계 ${total}명</div>`:''}</div>`;
   }
   root.innerHTML=output;
 
   const summaryRoot=$('#attendanceMonthlySummary');
   if(summaryRoot){
     const services=[...new Set([...ALL_SERVICES,...Object.keys(summary)])];
-    summaryRoot.innerHTML=services.map(service=>`<div><span>${esc(service)}</span><b>${summary[service]||0}명</b></div>`).join('');
+    const totals=services.reduce((a,service)=>{
+      const v=summary[service]||{present:0,online:0,visitor:0,total:0};
+      a.present+=v.present;a.online+=v.online;a.visitor+=v.visitor;a.total+=v.total;return a;
+    },{present:0,online:0,visitor:0,total:0});
+    summaryRoot.innerHTML=`<table class="monthly-service-table"><thead><tr><th>예배</th><th>출석</th><th>온라인</th><th>방문자</th><th>합계</th></tr></thead><tbody>${services.map(service=>{const v=summary[service]||{present:0,online:0,visitor:0,total:0};return `<tr><td>${esc(service)}</td><td>${v.present}명</td><td class="online-cell">${v.online}명</td><td class="visitor-cell">${v.visitor}명</td><td><b>${v.total}명</b></td></tr>`}).join('')}<tr class="total-row"><td>전체 합계</td><td>${totals.present}명</td><td>${totals.online}명</td><td>${totals.visitor}명</td><td>${totals.total}명</td></tr></tbody></table>`;
   }
 
   const total=loaded.reduce((sum,x)=>sum+x.count,0);
