@@ -6,7 +6,7 @@
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <meta content="#9e1b32" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>GunpoEunhye Corps Family Management System V9.1</title>
+<title>GunpoEunhye Corps Family Management System V9.1.1</title>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="icon"/>
 <style>
@@ -307,7 +307,7 @@ html.large-mode .att-options button{padding:10px 12px;font-size:14px}
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V9.1</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
+<header><div class="brand"><img alt="구세군 로고" src="logo.png"/><div><h1>GunpoEunhye Corps Family Management System V9.1.1</h1><p>군포은혜영문 가족관리시스템</p></div><div class="private">🔒 교회 내부용</div></div></header>
 <main>
 <section class="page active" id="home">
 <div class="install-banner" id="installBanner">
@@ -961,6 +961,10 @@ function currentAttendanceRows(){
   return D.members.map(member=>({member,status:obj[member.name]||'unchecked'}));
 }
 function attendanceStatusLabel(s){return {present:'출석',online:'온라인',absent:'불출석',unchecked:'미체크'}[s]||s}
+function serviceUsesOnline(service){
+  const name=String(service||'').replace(/\s+/g,'');
+  return name.includes('수요예배')||name.includes('금요기도');
+}
 function groupAttendanceRows(rows){
   const map=new Map();
   rows.forEach(x=>{const g=(x.member.group1||'소속 미지정').trim()||'소속 미지정';if(!map.has(g))map.set(g,[]);map.get(g).push(x)});
@@ -1592,7 +1596,7 @@ async function loadMonthlyAttendanceCalendar(){
   for(let day=1;day<=days;day++){
     const items=(records[day]||[]).sort((a,b)=>ALL_SERVICES.indexOf(a.service)-ALL_SERVICES.indexOf(b.service));
     const total=items.reduce((sum,item)=>sum+item.count,0);
-    output+=`<div class="calendar-day"><div class="calendar-date">${day}</div>${items.map(item=>`<div class="calendar-service"><b>${esc(item.service)}</b><br><small>출석 ${item.presentCount||0} · 온라인 ${item.onlineCount||0} · 방문 ${item.visitorCount||0} · 합계 ${item.count||0}</small></div>`).join('')}${total?`<div class="calendar-total">합계 ${total}명</div>`:''}</div>`;
+    output+=`<div class="calendar-day"><div class="calendar-date">${day}</div>${items.map(item=>{const onlineText=serviceUsesOnline(item.service)?`${item.onlineCount||0}`:'-';return `<div class="calendar-service"><b>${esc(item.service)}</b><br><small>출석 ${item.presentCount||0} · 온라인 ${onlineText} · 방문 ${item.visitorCount||0} · 합계 ${item.count||0}</small></div>`}).join('')}${total?`<div class="calendar-total">합계 ${total}명</div>`:''}</div>`;
   }
   root.innerHTML=output;
 
@@ -1603,7 +1607,7 @@ async function loadMonthlyAttendanceCalendar(){
       const v=summary[service]||{present:0,online:0,visitor:0,total:0};
       a.present+=v.present;a.online+=v.online;a.visitor+=v.visitor;a.total+=v.total;return a;
     },{present:0,online:0,visitor:0,total:0});
-    summaryRoot.innerHTML=`<table class="monthly-service-table"><thead><tr><th>예배</th><th>출석</th><th>온라인</th><th>방문자</th><th>합계</th></tr></thead><tbody>${services.map(service=>{const v=summary[service]||{present:0,online:0,visitor:0,total:0};return `<tr><td>${esc(service)}</td><td>${v.present}명</td><td class="online-cell">${v.online}명</td><td class="visitor-cell">${v.visitor}명</td><td><b>${v.total}명</b></td></tr>`}).join('')}<tr class="total-row"><td>전체 합계</td><td>${totals.present}명</td><td>${totals.online}명</td><td>${totals.visitor}명</td><td>${totals.total}명</td></tr></tbody></table>`;
+    summaryRoot.innerHTML=`<table class="monthly-service-table"><thead><tr><th>예배</th><th>출석</th><th>온라인</th><th>방문자</th><th>합계</th></tr></thead><tbody>${services.map(service=>{const v=summary[service]||{present:0,online:0,visitor:0,total:0};const onlineText=serviceUsesOnline(service)?`${v.online}명`:'-';return `<tr><td>${esc(service)}</td><td>${v.present}명</td><td class="online-cell">${onlineText}</td><td class="visitor-cell">${v.visitor}명</td><td><b>${v.total}명</b></td></tr>`}).join('')}<tr class="total-row"><td>전체 합계</td><td>${totals.present}명</td><td>${totals.online}명</td><td>${totals.visitor}명</td><td>${totals.total}명</td></tr></tbody></table><p class="stats-note">※ 온라인 인원은 수요예배와 금요기도회만 집계하며, 그 외 예배는 ‘-’로 표시합니다.</p>`;
   }
 
   const total=loaded.reduce((sum,x)=>sum+x.count,0);
